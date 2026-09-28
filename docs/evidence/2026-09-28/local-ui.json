@@ -1,0 +1,12 @@
+[
+  {
+    "viewport": 1440,
+    "home_menu_search_theme_editor_deep_refresh": "passed",
+    "provider": "isolated fixture, not production OIDC"
+  },
+  {
+    "viewport": 390,
+    "home_menu_search_theme_editor_deep_refresh": "passed",
+    "provider": "isolated fixture, not production OIDC"
+  }
+]

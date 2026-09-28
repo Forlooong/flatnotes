@@ -23,6 +23,10 @@ class GlobalConfig:
             from auth.local import LocalAuth
 
             return LocalAuth()
+        elif self.auth_type == AuthType.OIDC:
+            from auth.oidc import OIDCAuth
+
+            return OIDCAuth(self.path_prefix)
 
     def load_note_storage(self):
         from notes.file_system import FileSystemNotes
@@ -107,6 +111,7 @@ class AuthType(str, Enum):
     READ_ONLY = "read_only"
     PASSWORD = "password"
     TOTP = "totp"
+    OIDC = "oidc"
 
 
 class GlobalConfigResponseModel(CustomBaseModel):

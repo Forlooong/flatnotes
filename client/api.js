@@ -3,27 +3,15 @@ import * as constants from "./constants.js";
 import { Note, SearchResult } from "./classes.js";
 
 import axios from "axios";
-import { getStoredToken } from "./tokenStorage.js";
 import { getToastOptions } from "./helpers.js";
 import router from "./router.js";
 
 const api = axios.create();
 
-api.interceptors.request.use(
-  // If the request is not for the token endpoint, add the token to the headers.
-  function (config) {
-    if (config.url !== "api/token") {
-      const token = getStoredToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  function (error) {
-    return Promise.reject(error);
-  },
-);
+export async function logOut() {
+  const response = await api.post("api/oidc/logout");
+  return response.data;
+}
 
 export function apiErrorHandler(error, toast) {
   if (error.response?.status === 401) {
@@ -48,18 +36,6 @@ export async function getConfig() {
   try {
     const response = await api.get("api/config");
     return response.data;
-  } catch (response) {
-    return Promise.reject(response);
-  }
-}
-
-export async function getToken(username, password, totp) {
-  try {
-    const response = await api.post("api/token", {
-      username: username,
-      password: totp ? password + totp : password,
-    });
-    return response.data.access_token;
   } catch (response) {
     return Promise.reject(response);
   }

@@ -1,7 +1,10 @@
 from typing import List, Literal
+import secrets
+from urllib.parse import quote
+from starlette.concurrency import run_in_threadpool
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 import api_messages
@@ -27,6 +30,36 @@ app = FastAPI(
 replace_base_href("client/dist/index.html", global_config.path_prefix)
 
 
+if global_config.auth_type == AuthType.OIDC:
+    # Protect UI, static assets and APIs. Authentication runs once per request;
+    # the router dependency reuses the established request identity.
+    auth_deps = []
+
+    @app.middleware("http")
+    async def oidc_boundary(request: Request, call_next):
+        public = {
+            global_config.path_prefix + "/health",
+            global_config.path_prefix + "/api/oidc/login",
+            global_config.path_prefix + "/api/oidc/callback",
+        }
+        try:
+            auth.check_origin(request)
+            if request.url.path not in public:
+                request.state.username = await run_in_threadpool(auth.authenticate, request)
+        except HTTPException as error:
+            if error.status_code == 401 and request.method == "GET" and "text/html" in request.headers.get("accept", ""):
+                destination = request.url.path + (("?" + request.url.query) if request.url.query else "")
+                response = RedirectResponse(global_config.path_prefix + "/api/oidc/login?redirect=" + quote(destination, safe=""), status_code=302)
+            else:
+                response = JSONResponse({"detail": error.detail}, status_code=error.status_code)
+            response.headers["Cache-Control"] = "no-store"
+            return response
+        response = await call_next(request)
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+
+
 # region UI
 @router.get("/", include_in_schema=False)
 @router.get("/login", include_in_schema=False)
@@ -45,14 +78,68 @@ def root(title: str = ""):
 # region Auth
 if global_config.auth_type not in [AuthType.NONE, AuthType.READ_ONLY]:
 
-    @router.post("/api/token", response_model=Token)
-    def token(data: Login):
-        try:
-            return auth.login(data)
-        except ValueError:
-            raise HTTPException(
-                status_code=401, detail=api_messages.login_failed
+    if global_config.auth_type in [AuthType.PASSWORD, AuthType.TOTP]:
+
+        @router.post("/api/token", response_model=Token)
+        def token(data: Login):
+            try:
+                return auth.login(data)
+            except ValueError:
+                raise HTTPException(
+                    status_code=401, detail=api_messages.login_failed
+                )
+
+    if global_config.auth_type == AuthType.OIDC:
+
+        @router.get("/api/oidc/login", include_in_schema=False)
+        def oidc_login(redirect: str | None = None):
+            location, state = auth.begin_login(redirect)
+            response = RedirectResponse(location=location, status_code=302)
+            response.set_cookie(
+                auth.STATE_COOKIE,
+                state,
+                max_age=auth.STATE_TTL_SECONDS,
+                secure=True,
+                httponly=True,
+                samesite="lax",
+                path=global_config.path_prefix or "/",
             )
+            response.headers["Cache-Control"] = "no-store"
+            return response
+
+        @router.get("/api/oidc/callback", include_in_schema=False)
+        def oidc_callback(
+            request: Request, code: str | None = None, state: str | None = None
+        ):
+            request_state = request.cookies.get(auth.STATE_COOKIE)
+            if not code or not state or not request_state or not secrets.compare_digest(request_state, state):
+                raise HTTPException(status_code=400, detail="Invalid OIDC callback")
+            session_id, redirect = auth.complete_login(state, code, request.cookies.get("site_session", ""))
+            response = RedirectResponse(location=redirect, status_code=302)
+            response.set_cookie(
+                auth.SESSION_COOKIE,
+                session_id,
+                max_age=auth.session_expiry_seconds,
+                secure=True,
+                httponly=True,
+                samesite="lax",
+                path=global_config.path_prefix or "/",
+            )
+            response.delete_cookie(
+                auth.STATE_COOKIE, path=global_config.path_prefix or "/"
+            )
+            response.headers["Cache-Control"] = "no-store"
+            return response
+
+        @router.post("/api/oidc/logout", include_in_schema=False)
+        def oidc_logout(request: Request):
+            auth.logout(request.cookies.get(auth.SESSION_COOKIE))
+            response = JSONResponse({"redirect": auth.provider_logout_url()})
+            response.delete_cookie(
+                auth.SESSION_COOKIE, path=global_config.path_prefix or "/"
+            )
+            response.headers["Cache-Control"] = "no-store"
+            return response
 
 
 @router.get("/api/auth-check", dependencies=auth_deps)

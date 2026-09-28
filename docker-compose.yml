@@ -1,0 +1,34 @@
+name: site-flatnotes
+services:
+  flatnotes:
+    image: site-flatnotes:${SOURCE_COMMIT:?explicit source commit required}
+    build:
+      context: .
+      args:
+        BUILD_DIR: /build
+    restart: 'no'
+    user: '1000:1000'
+    network_mode: host
+    mem_limit: 256m
+    cpus: 0.5
+    environment:
+      PUID: '1000'
+      PGID: '1000'
+      FLATNOTES_HOST: 127.0.0.1
+      FLATNOTES_PORT: '18080'
+      FLATNOTES_AUTH_TYPE: oidc
+      FLATNOTES_PATH_PREFIX: /apps/notes
+      FLATNOTES_PATH: /data
+      FLATNOTES_OIDC_ISSUER: https://www.040323.xyz/auth
+      FLATNOTES_OIDC_CLIENT_ID: flatnotes
+      FLATNOTES_OIDC_REDIRECT_URI: https://www.040323.xyz/apps/notes/api/oidc/callback
+      FLATNOTES_SESSION_EXPIRY_SECONDS: '28800'
+    volumes:
+      - type: bind
+        source: /data/apps/notes/shared
+        target: /data
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options: {max-size: 5m, max-file: '2'}

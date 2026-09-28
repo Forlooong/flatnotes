@@ -1,7 +1,7 @@
 ARG BUILD_DIR=/build
 
 # Build Container
-FROM --platform=$BUILDPLATFORM node:24-alpine AS build
+FROM --platform=$BUILDPLATFORM node:24-alpine@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1 AS build
 
 ARG BUILD_DIR
 
@@ -22,8 +22,8 @@ COPY client ./client
 RUN npm run build
 
 # Runtime Container
-FROM python:3.13-slim-trixie
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+FROM python:3.13-slim-trixie@sha256:7c61056e61ac89e852de05f3dc6fa51a6dd2181797bceed46aa725dd7cb2cd3b
+COPY --from=ghcr.io/astral-sh/uv:latest@sha256:04d046b13e60d6bcec73cbc5e1cad25d680dea90c8573340950a0ac2d1aef424 /uv /uvx /bin/
 
 ARG BUILD_DIR
 
@@ -53,7 +53,8 @@ ENV UV_PROJECT_ENVIRONMENT=/usr/local
 RUN uv sync --locked --compile-bytecode --no-dev
 
 COPY server ./server
-COPY --from=build --chmod=777 ${BUILD_DIR}/client/dist ./client/dist
+COPY --from=build ${BUILD_DIR}/client/dist ./client/dist
+RUN chown 1000:1000 client/dist/index.html
 
 COPY entrypoint.sh healthcheck.sh /
 RUN chmod +x /entrypoint.sh /healthcheck.sh

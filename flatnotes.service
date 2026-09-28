@@ -1,0 +1,20 @@
+[Unit]
+Description=Shared Flatnotes (explicit immutable release)
+Requires=docker.service
+After=docker.service data.mount
+BindsTo=data.mount
+RequiresMountsFor=/data
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/flatnotes/current
+EnvironmentFile=/opt/flatnotes/current/release.env
+ExecStartPre=/bin/bash /opt/flatnotes/current/check-data.sh
+ExecStart=/usr/bin/docker compose -f /opt/flatnotes/current/docker-compose.yml up --no-build --abort-on-container-exit --exit-code-from flatnotes
+ExecStop=/usr/bin/docker compose -f /opt/flatnotes/current/docker-compose.yml stop -t 15
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,25 +1,30 @@
 <template>
-  <div class="flex h-full justify-center">
-    <div class="flex max-w-[500px] flex-1 flex-col items-center pt-[25vh]">
-      <Logo class="mb-5" />
-      <SearchInput class="mb-5 shadow-[0_0_20px] shadow-theme-shadow" />
+  <div class="shared-notes-home">
+    <section class="shared-notes-hero">
+      <h1>一起记下，随时翻阅。</h1>
+      <p>这里的笔记由网站成员共同查看和编辑。</p>
+    </section>
+
+    <SearchInput
+      large
+      class="shared-notes-search"
+      placeholder="搜索标题、内容或 #标签…"
+    />
+
+    <section class="shared-notes-recent">
+      <h2>最近修改</h2>
       <LoadingIndicator
         ref="loadingIndicator"
-        class="flex min-h-56 flex-col items-center"
+        class="flex min-h-56 flex-col"
         hideLoader
       >
-        <p
-          v-if="notes.length > 0"
-          class="mb-2 text-xs font-bold uppercase text-theme-text-very-muted"
-        >
-          {{ globalStore.config.quickAccessTitle }}
-        </p>
         <RouterLink
           v-for="note in notes.slice(0, globalStore.config.quickAccessLimit)"
+          :key="note.title"
           :to="{ name: 'note', params: { title: note.title } }"
-          class="mb-1"
+          class="shared-notes-row"
         >
-          <CustomButton :label="note.title" />
+          {{ note.title }}
         </RouterLink>
         <RouterLink
           v-if="notes.length > globalStore.config.quickAccessLimit"
@@ -30,24 +35,22 @@
               sortBy: searchSortOptions[globalStore.config.quickAccessSort],
             },
           }"
-          title="Show more"
-          ><CustomButton :iconPath="mdiDotsHorizontal"
-        /></RouterLink>
+          class="shared-notes-more"
+        >
+          查看全部笔记
+        </RouterLink>
       </LoadingIndicator>
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { mdiDotsHorizontal } from "@mdi/js";
 import { useToast } from "primevue/usetoast";
 import { onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import { apiErrorHandler, getNotes } from "../api.js";
-import CustomButton from "../components/CustomButton.vue";
 import LoadingIndicator from "../components/LoadingIndicator.vue";
-import Logo from "../components/Logo.vue";
 import { searchSortOptions } from "../constants.js";
 import { useGlobalStore } from "../globalStore.js";
 import SearchInput from "../partials/SearchInput.vue";
@@ -59,29 +62,25 @@ const toast = useToast();
 
 function init() {
   if (globalStore.config.quickAccessHide) {
+    loadingIndicator.value?.setLoaded();
     return;
   }
   getNotes(
     globalStore.config.quickAccessTerm,
     globalStore.config.quickAccessSort,
-    // Order by ascending if sorting by title, descending otherwise.
-    globalStore.config.quickAccessSort === "title"
-      ? "asc"
-      : "desc",
-    // Limit is increased by 1 to check if there are more notes than the limit.
+    globalStore.config.quickAccessSort === "title" ? "asc" : "desc",
     globalStore.config.quickAccessLimit + 1,
   )
     .then((data) => {
       notes.value = data;
-      loadingIndicator.value.setLoaded();
+      loadingIndicator.value?.setLoaded();
     })
     .catch((error) => {
-      loadingIndicator.value.setFailed();
+      loadingIndicator.value?.setFailed();
       apiErrorHandler(error, toast);
     });
 }
 
-// Watch to allow for delayed config load.
-watch(() => globalStore.config.hideRecentlyModified, init);
+watch(() => globalStore.config.quickAccessHide, init);
 onMounted(init);
 </script>

@@ -63,7 +63,7 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
-  let title = "flatnotes";
+  let title = "共享笔记";
   if (to.name === "note") {
     if (to.params.title) {
       title = `${to.params.title} - ${title}`;

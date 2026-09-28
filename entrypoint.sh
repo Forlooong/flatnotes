@@ -28,7 +28,8 @@ flatnotes_command="python -m \
                   --host ${FLATNOTES_HOST} \
                   --port ${FLATNOTES_PORT} \
                   --proxy-headers \
-                  --forwarded-allow-ips '*'"
+                  --forwarded-allow-ips 127.0.0.1 \
+                  --no-access-log"
 
 if [ `id -u` -eq 0 ] && [ `id -g` -eq 0 ]; then
     echo Setting file permissions...
