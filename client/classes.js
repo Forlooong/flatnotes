@@ -12,7 +12,9 @@ class Note {
   }
 
   get lastModifiedAsString() {
-    return this.lastModifiedAsDate.toLocaleString();
+    return this.lastModifiedAsDate.toLocaleString(undefined, {
+      timeZone: "Asia/Shanghai",
+    });
   }
 }
 

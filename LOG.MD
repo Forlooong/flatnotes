@@ -185,3 +185,15 @@ ID: 2026-09-28-flatnotes-branch-handoff
 - Git commit：合并成果 a2d46df0fdb37d42b7674015a1d2a2d756396ca2；指南及施工记录的提交为包含本条的提交。
 
 SHA256: e38de3bf522097cca83e7c1086bace33c942a61000e870d8c020326b2be21897
+
+## 2026-09-28T16:12:15+08:00 笔记修改时间固定为北京时间
+
+- ID / HASH: 2026-09-28-note-beijing-time-c731e2
+- 目标：按用户要求将笔记修改时间显示固定为北京时间。
+- 修改范围与关键文件：client/classes.js 的 lastModifiedAsString；LOG.MD、LOG-INDEX.MD。
+- 设计决定与原因：toLocaleString 显式指定 Asia/Shanghai，避免显示时区随浏览器所在地区变化；保留原本的本地化格式。首页和搜索结果共用此格式化入口，后端时间戳与排序不变。
+- 验证：Node 执行实际 classes.js 中的 Note/SearchResult，在 UTC、America/Phoenix、Asia/Shanghai 三种环境时区分别检查 UTC 转北京时间及跨日场景，全部通过；git diff --check 通过。
+- 人工确认与限制：未进行浏览器页面检查，待确认首页和搜索结果的实际显示；未部署生产。
+- 遗留与风险：无已知新增问题；本轮仅显示层调整，可回退该格式化选项。
+- 临时资产：无，验证脚本通过标准输入执行，未创建测试文件或构建产物。
+- Git commit：本轮未提交；基线 HEAD a5118fedffe06413af54aebdcdb83247a0eb2c98。
