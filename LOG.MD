@@ -48,3 +48,17 @@ HASH: 3d75afcbfd595a9178b075393255921bd1ca171fb50097f9622da6b251d2e129
 VPS 隔离测试容器/数据及六个完整 SHA 的 /opt/deploy/notes-validation staging 已精确清理；三组生产 UUID 测试笔记/附件已精确清理，随后运行现有 FileSystemNotes 同步索引。正式 release/用户数据/密钥/回滚保留。截图/原始保护快照待人工确认后可删除，开发依赖与构建缓存未 broad prune。本条不改变已通过功能和生产源码 commit。
 
 HASH: 8edfc0f160897bef822289a9717f6a18274868a4a76ccdd70ab412a1f7c2f110
+
+## 2026-09-28 — Notes 样式与网站首页统一（发布候选）
+
+用户反馈：上一版前端审核不通过，要求与网站首页风格统一；历史功能通过不代表视觉审核通过。
+目标与范围：以网站首页 bundle 05b633c8a337153b 为实际基线，仅调整 Flatnotes 前端字体、灰绿配色、三角标、统一导航、留白、细线列表、搜索/弹层及阅读/编辑器样式；认证、共享目录、接口、部署架构、依赖不变。
+关键文件：client/style.css、App.vue、NavBar.vue、Home.vue、SearchResults.vue、Note.vue、SearchInput.vue、SearchModal.vue、CustomButton.vue、PrimeMenu.vue、Modal.vue、toastui-editor-overrides.scss、tailwind.config.js；tests/check_style.py、ui_fixture.py、SPEC.md。部分已有 CRLF/Mixed 文件在改动时统一 LF，无业务逻辑变化。
+设计：浅色 #f5f7f6/#253c36/#64736d/#d8e0dc、网站 Aptos/Segoe UI/PingFang SC/Microsoft YaHei 字体；1280px shell 与 64/26/20px 边距；菜单展开条目不变，保留编辑器和主题，上游编辑操作仍部分英文。
+验证：最终 npm build 通过；Playwright 真实 Chromium 1440x1000、390x844、320x760（移动模式+触控）逐项比较线上首页计算颜色/字体/内容左边距一致，菜单展开/搜索/阅读刷新/浅暗主题及编辑器/真实 POST 新建保存/PATCH 再编辑/精确删除本轮数据通过，无溢出与页面异常。检查结果 style-unification/checks.json，截图实际查看。未重跑未改动的 OIDC 认证密码学或双账户协议测试，不用历史结果冒充本轮 UI 验证。
+测试问题：先前本地自建 fixture 欢迎使用.md 为 GBK，本次 UTF-8 进程读取失败，修正该测试数据；Save 保持编辑态是上游行为，测试显式退出编辑再读并真正修改内容后检查 PATCH。fixture 写请求仅测试 Origin localhost18081，不影响正式 server 配置。
+状态：本地验证通过，候选尚未生产发布；用户视觉审核尚未收到，不能宣称审核通过。保持旧生产 01946e76e28ddf61feae3df9bdb4c87a1e9b3ef4 作为回滚点，发布记录另追加。
+临时资产：截图 style-unification/*.png、work/tests/inspect-style-*.py、normalize-ui-lines.py、保护快照、fixture 数据及 dist 忽略 Git；截图待复核可删除，未知既有 test-data 不动。临时进程将在发布/审查收尾停止。
+Git：本记录随样式候选提交，完整 commit 在后续部署记录标注。
+
+HASH: 3c30109d7c500ad6f4358714c0cb2947e5edbb17050973a1990dcf16ba4b0cf4

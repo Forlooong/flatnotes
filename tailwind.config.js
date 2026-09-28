@@ -7,7 +7,7 @@ export default {
   darkMode: "selector",
   theme: {
     fontFamily: {
-      sans: ["Poppins", "sans-serif"],
+      sans: ["Aptos", "Segoe UI", "PingFang SC", "Microsoft YaHei", "sans-serif"],
     },
     screens: {
       sm: "640px",

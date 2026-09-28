@@ -2,7 +2,7 @@
   <div class="relative w-full">
     <!-- Input -->
     <div
-      class="flex w-full rounded-md border border-theme-border bg-theme-background dark:bg-theme-background-elevated"
+      class="notes-search-field flex w-full border border-theme-border bg-theme-background dark:bg-theme-background-elevated"
       :class="{ 'px-3 py-2': !large, 'px-5 py-4': large }"
     >
       <IconLabel :iconPath="mdilMagnify" class="mr-2" />
@@ -57,7 +57,7 @@ import { getToastOptions } from "../helpers.js";
 const props = defineProps({
   initialSearchTerm: { type: String, default: "" },
   large: Boolean,
-  placeholder: { type: String, default: "Search..." },
+  placeholder: { type: String, default: "搜索标题、内容或 #标签…" },
 });
 const emit = defineEmits(["search"]);
 

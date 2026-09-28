@@ -7,7 +7,7 @@
   >
     <!-- Modal -->
     <div
-      class="relative mx-2 mt-[30vh] max-w-[500px] grow rounded-lg border border-theme-border bg-theme-background shadow-lg"
+      class="notes-modal relative mx-2 mt-[30vh] max-w-[500px] grow border border-theme-border bg-theme-background"
       :class="$attrs.class"
     >
       <slot></slot>

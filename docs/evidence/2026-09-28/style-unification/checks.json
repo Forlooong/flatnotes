@@ -1,0 +1,26 @@
+{
+  "environment": "local authenticated fixture; authentication protocol unchanged",
+  "results": [
+    {
+      "viewport": 1440,
+      "homepage_palette_font_and_alignment": "exact computed match",
+      "menu_search_theme_read_editor_create_save_edit": "passed",
+      "overflow": false,
+      "pageErrors": []
+    },
+    {
+      "viewport": 390,
+      "homepage_palette_font_and_alignment": "exact computed match",
+      "menu_search_theme_read_editor_create_save_edit": "passed",
+      "overflow": false,
+      "pageErrors": []
+    },
+    {
+      "viewport": 320,
+      "homepage_palette_font_and_alignment": "exact computed match",
+      "menu_search_theme_read_editor_create_save_edit": "passed",
+      "overflow": false,
+      "pageErrors": []
+    }
+  ]
+}

@@ -3,123 +3,157 @@
 @tailwind utilities;
 
 @layer base {
-    @font-face {
-        font-family: "Poppins";
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url("assets/fonts/Poppins/Poppins-Regular.ttf");
-    }
-
-    @font-face {
-        font-family: "Poppins";
-        font-style: italic;
-        font-weight: 400;
-        font-display: swap;
-        src: url("assets/fonts/Poppins/Poppins-Italic.ttf");
-    }
-
-    @font-face {
-        font-family: "Poppins";
-        font-style: normal;
-        font-weight: 600;
-        font-display: swap;
-        src: url("assets/fonts/Poppins/Poppins-SemiBold.ttf");
-    }
-
-    @font-face {
-        font-family: "Poppins";
-        font-style: italic;
-        font-weight: 600;
-        font-display: swap;
-        src: url("assets/fonts/Poppins/Poppins-SemiBoldItalic.ttf");
-    }
-
     body {
-        --theme-brand: 248 166 107;
-        --theme-background: 255 255 255;
-        --theme-background-elevated: 243 244 245;
-        --theme-text: 44 49 57;
-        --theme-text-muted: 136 145 161;
-        --theme-text-very-muted: 193 199 208;
-        --theme-shadow: 236 238 240;
-        --theme-border: 236 238 240;
+        /* Shared with vps-site homepage bundle 05b633c8a337153b. */
+        --theme-brand: 54 94 82;
+        --theme-background: 245 247 246;
+        --theme-background-elevated: 233 238 235;
+        --theme-text: 37 60 54;
+        --theme-text-muted: 100 115 109;
+        --theme-text-very-muted: 129 148 140;
+        --theme-shadow: 216 224 220;
+        --theme-border: 216 224 220;
+        --notes-font: "Aptos", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        margin: 0;
+        font-family: var(--notes-font);
+        color: rgb(var(--theme-text));
+        background: rgb(var(--theme-background));
     }
-
     body.dark {
-        /* --theme-brand: 248 166 107; */
-        --theme-background: 34 38 44;
-        --theme-background-elevated: 44 49 57;
-        --theme-text: 193 199 208;
-        --theme-text-muted: 136 145 161;
-        --theme-text-very-muted: 94 107 128;
-        --theme-shadow: none;
-        --theme-border: 94 107 128;
+        --theme-brand: 159 196 181;
+        --theme-background: 24 40 35;
+        --theme-background-elevated: 32 50 44;
+        --theme-text: 215 224 219;
+        --theme-text-muted: 155 172 163;
+        --theme-text-very-muted: 119 141 131;
+        --theme-shadow: 24 40 35;
+        --theme-border: 53 74 64;
     }
+    ::selection { background: #ceded5; color: #253c36; }
+    a, button { -webkit-tap-highlight-color: transparent; }
+    a:focus-visible, button:focus-visible, input:focus-visible, [contenteditable]:focus-visible {
+        outline: 2px solid rgb(var(--theme-brand));
+        outline-offset: 4px;
+    }
+    input, textarea { caret-color: rgb(var(--theme-text)); }
 }
 
 @layer components {
-    .shared-notes-home {
+    .notes-shell {
+        width: min(100%, 1280px);
+        min-height: 100svh;
         margin: 0 auto;
-        max-width: 980px;
-        padding: clamp(2rem, 9vw, 7rem) clamp(0.5rem, 4vw, 2.75rem) 5rem;
+        padding: 0 64px 64px;
     }
-
-    .shared-notes-hero {
-        margin: 0 0 2rem;
+    .notes-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        min-height: 108px;
+        flex-shrink: 0;
     }
-
-    .shared-notes-hero h1 {
-        color: rgb(var(--theme-text));
-        font-size: clamp(2.25rem, 6vw, 4.25rem);
+    .notes-brand { display: flex; align-items: center; gap: 20px; }
+    .notes-site-mark { display: flex; align-items: center; min-height: 44px; }
+    .notes-wordmark {
+        font-family: "Bahnschrift", "Aptos", "Microsoft YaHei", sans-serif;
+        font-size: 22px;
         font-weight: 400;
-        letter-spacing: -0.04em;
-        line-height: 1.18;
+        letter-spacing: -.4px;
+        white-space: nowrap;
     }
+    .notes-nav-actions { display: flex; align-items: center; gap: 12px; }
+    .notes-nav .notes-button { font-size: 12px; min-height: 44px; padding: 8px 2px; }
+    .notes-nav .notes-button svg { width: 20px; height: 20px; }
+    .notes-button { font-weight: 400; border-radius: 3px; }
+    .notes-menu { min-width: 205px; border-radius: 3px; padding: 7px; box-shadow: none; }
+    .notes-menu [role="menuitem"] { font-size: 13px; padding: 9px 10px; }
+    .notes-menu svg { width: 20px; height: 20px; }
+    .notes-menu [role="menuitem"]:focus-visible { outline-offset: -2px; }
+    .notes-modal { border-radius: 3px; }
+    .notes-search-field { border-radius: 3px; min-height: 48px; color: rgb(var(--theme-text-muted)); }
+    .notes-search-field input { color: rgb(var(--theme-text)); font-size: 14px; }
+    .notes-search-field:focus-within { border-color: rgb(var(--theme-brand)); }
+    .notes-search-field input:focus-visible { outline: none; }
+    .notes-search-field input::placeholder { color: rgb(var(--theme-text-muted)); opacity: 1; }
 
-    .shared-notes-hero p {
-        color: rgb(var(--theme-text-muted));
-        font-size: clamp(1rem, 2.4vw, 1.45rem);
-        margin-top: 1.25rem;
-    }
+    .shared-notes-home { width: 100%; padding: 66px 0 32px; }
+    .shared-notes-hero { margin-bottom: 32px; }
+    .shared-notes-hero h1 { font-size: clamp(32px, 4.2vw, 52px); font-weight: 400; letter-spacing: -.04em; line-height: 1.3; }
+    .shared-notes-hero p { font-size: 13px; letter-spacing: .04em; line-height: 1.8; color: rgb(var(--theme-text-muted)); margin-top: 20px; }
+    .shared-notes-search { max-width: 620px; margin-bottom: 72px; }
+    .shared-notes-recent h2 { font-size: 14px; font-weight: 500; margin: 0; padding-bottom: 20px; border-bottom: 1px solid rgb(var(--theme-border)); }
+    .shared-notes-row { display: flex; align-items: center; gap: 16px; min-height: 115px; padding: 26px 2px; border-bottom: 1px solid rgb(var(--theme-border)); }
+    .shared-notes-row-icon { flex-shrink: 0; color: rgb(var(--theme-text-muted)); }
+    .shared-notes-row-icon svg { width: 38px; height: 38px; }
+    .shared-notes-row-copy { display: flex; flex: 1; flex-direction: column; min-width: 0; gap: 7px; }
+    .shared-notes-row-title { font-size: 22px; font-weight: 400; letter-spacing: -.4px; overflow-wrap: anywhere; }
+    .shared-notes-row-date { font-size: 11px; color: rgb(var(--theme-text-muted)); }
+    .shared-notes-row-arrow { font-size: 22px; color: rgb(var(--theme-text-muted)); padding: 12px 5px 12px 12px; transition: transform .2s; }
+    .shared-notes-row:hover .shared-notes-row-arrow { transform: translate(3px,-3px); color: rgb(var(--theme-text)); }
+    .shared-notes-empty { color: rgb(var(--theme-text-muted)); font-size: 13px; padding: 32px 0; line-height: 1.8; }
+    .shared-notes-more { display: inline-block; margin-top: 24px; padding: 8px 0; font-size: 13px; color: rgb(var(--theme-text-muted)); }
 
-    .shared-notes-search {
-        margin: 0 0 4.5rem;
-    }
+    .notes-search-results { width: 100%; max-width: 850px; padding-top: 32px; }
+    .notes-search-result { border-bottom: 1px solid rgb(var(--theme-border)); }
+    .notes-search-result > a { display: block; padding: 25px 2px; line-height: 1.8; }
+    .notes-search-result > a > div:first-child { font-size: 22px; font-weight: 400; margin-bottom: 7px; overflow-wrap: anywhere; }
+    .notes-search-result > a > div:last-child { font-size: 12px; }
+    .notes-search-result:hover { background: rgb(var(--theme-background-elevated)); }
+    .notes-document { width: 100%; padding-top: 32px; flex: 1; }
+    .notes-document-header { gap: 20px; margin-bottom: 20px; }
+    .notes-document-title { font-size: 30px; font-weight: 400; letter-spacing: -.5px; }
+    .notes-document-title input { border-bottom: 1px solid rgb(var(--theme-border)); padding: 8px 0; }
+    .notes-document-title input:focus-visible { border-color: rgb(var(--theme-brand)); outline: none; }
+    .toast-viewer { max-width: 850px; }
+}
 
-    .shared-notes-recent h2 {
-        color: rgb(var(--theme-text-muted));
-        font-size: 1.1rem;
-        font-weight: 400;
-        margin-bottom: 0.8rem;
-    }
+/* The editor imports its own CSS; these scoped overrides follow that import. */
+.notes-document .toastui-editor-defaultUI { min-height: 520px; height: calc(100svh - 270px) !important; border-color: rgb(var(--theme-border)); border-radius: 3px; font-family: var(--notes-font); }
+.notes-document .toastui-editor-defaultUI-toolbar,
+.notes-document .toastui-editor-mode-switch,
+.notes-document .toastui-editor-md-tab-container { background: rgb(var(--theme-background-elevated)); border-color: rgb(var(--theme-border)); }
+.notes-document .toastui-editor-main,
+.notes-document .toastui-editor-md-container,
+.notes-document .toastui-editor-ww-container { background: rgb(var(--theme-background)); }
+.notes-document .toastui-editor-contents,
+.notes-document .ProseMirror { color: rgb(var(--theme-text)); font-family: var(--notes-font); }
+.notes-document .toastui-editor-contents p,
+.notes-document .toastui-editor-contents h1,
+.notes-document .toastui-editor-contents h2,
+.notes-document .toastui-editor-contents h3 { color: rgb(var(--theme-text)); }
+.notes-document .toastui-editor-tabs .tab-item,
+.notes-document .toastui-editor-mode-switch .tab-item { background: transparent; color: rgb(var(--theme-text-muted)); border-color: rgb(var(--theme-border)); }
+.notes-document .toastui-editor-tabs .tab-item.active,
+.notes-document .toastui-editor-mode-switch .tab-item.active { background: rgb(var(--theme-background)); color: rgb(var(--theme-text)); }
+.notes-document .toastui-editor-md-splitter { background: rgb(var(--theme-border)); }
 
-    .shared-notes-row {
-        border-bottom: 1px solid rgb(var(--theme-border));
-        color: rgb(var(--theme-text));
-        display: block;
-        font-size: clamp(1.05rem, 2.8vw, 1.45rem);
-        padding: 1.05rem 0.35rem;
-        transition: color 150ms ease, padding-left 150ms ease;
-    }
-
-    .shared-notes-row:hover,
-    .shared-notes-row:focus-visible {
-        color: rgb(var(--theme-brand));
-        padding-left: 0.7rem;
-    }
-
-    .shared-notes-more {
-        border: 1px solid rgb(var(--theme-border));
-        border-radius: 999px;
-        color: rgb(var(--theme-text-muted));
-        display: inline-block;
-        margin-top: 1.5rem;
-        padding: 0.7rem 1.25rem;
-    }
-
-    .shared-notes-more:hover,
-    .shared-notes-more:focus-visible {
-        color: rgb(var(--theme-text));
-    }
+@media (max-width: 760px) {
+    .notes-shell { padding: 0 26px 48px; }
+    .notes-nav { min-height: 86px; gap: 12px; flex-wrap: wrap; }
+    .notes-brand { gap: 12px; }
+    .notes-wordmark { font-size: 19px; }
+    .notes-nav-actions { gap: 8px; }
+    .notes-nav .notes-button { font-size: 12px; }
+    .notes-nav .notes-button svg { display: none; }
+    .shared-notes-home { padding-top: 44px; }
+    .shared-notes-hero p { font-size: 12px; }
+    .shared-notes-search { margin-bottom: 52px; }
+    .shared-notes-row { min-height: 106px; padding: 23px 0; gap: 14px; }
+    .notes-search-results, .notes-document { padding-top: 20px; }
+    .notes-document-title { font-size: 26px; }
+    .notes-document-header { gap: 14px; }
+}
+@media (max-width: 370px) {
+    .notes-shell { padding-left: 20px; padding-right: 20px; }
+    .notes-brand { gap: 8px; }
+    .notes-nav-actions { gap: 4px; }
+    .notes-wordmark { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+@media print {
+    .notes-shell { padding: 0; width: 100%; min-height: auto; }
+    body { background: white; color: black; }
 }

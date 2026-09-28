@@ -38,11 +38,11 @@
     "
   />
 
-  <LoadingIndicator ref="loadingIndicator" class="flex h-full flex-col">
+  <LoadingIndicator ref="loadingIndicator" class="notes-document flex flex-col">
     <!-- Header -->
-    <div class="flex flex-col-reverse md:flex-row md:items-baseline">
+    <div class="notes-document-header flex flex-col-reverse md:flex-row md:items-baseline">
       <!-- Title -->
-      <div class="grow truncate text-3xl leading-[1.6em]">
+      <div class="notes-document-title grow truncate leading-[1.6em]">
         <span v-show="!editMode" :title="note.title">{{ note.title }}</span>
         <input
           v-show="editMode"

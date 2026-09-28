@@ -15,17 +15,24 @@
       <h2>最近修改</h2>
       <LoadingIndicator
         ref="loadingIndicator"
-        class="flex min-h-56 flex-col"
+        class="flex flex-col"
         hideLoader
       >
         <RouterLink
           v-for="note in notes.slice(0, globalStore.config.quickAccessLimit)"
           :key="note.title"
           :to="{ name: 'note', params: { title: note.title } }"
+          :aria-label="note.title"
           class="shared-notes-row"
         >
-          {{ note.title }}
+          <IconLabel :iconPath="mdilNoteMultiple" class="shared-notes-row-icon" />
+          <span class="shared-notes-row-copy">
+            <span class="shared-notes-row-title">{{ note.title }}</span>
+            <span class="shared-notes-row-date">{{ note.lastModifiedAsString }}</span>
+          </span>
+          <span class="shared-notes-row-arrow" aria-hidden="true">↗</span>
         </RouterLink>
+        <p v-if="!notes.length && !globalStore.config.quickAccessHide" class="shared-notes-empty">还没有笔记，从“新建笔记”开始记录。</p>
         <RouterLink
           v-if="notes.length > globalStore.config.quickAccessLimit"
           :to="{
@@ -48,6 +55,8 @@
 import { useToast } from "primevue/usetoast";
 import { onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
+import { mdilNoteMultiple } from "@mdi/light-js";
+import IconLabel from "../components/IconLabel.vue";
 
 import { apiErrorHandler, getNotes } from "../api.js";
 import LoadingIndicator from "../components/LoadingIndicator.vue";

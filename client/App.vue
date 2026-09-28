@@ -1,7 +1,7 @@
 <template>
   <LoadingIndicator
     ref="loadingIndicator"
-    class="container mx-auto flex h-screen flex-col px-2 py-4 print:max-w-full"
+    class="notes-shell flex flex-col print:max-w-full"
   >
     <PrimeToast />
     <SearchModal v-model="isSearchModalVisible" />
@@ -9,7 +9,6 @@
       v-if="showNavBar"
       ref="navBar"
       :class="{ 'print:hidden': route.name == 'note' }"
-      :hide-logo="!showNavBarLogo"
       @toggleSearchModal="toggleSearchModal"
     />
     <RouterView />
@@ -75,10 +74,6 @@ getConfig()
 
 const showNavBar = computed(() => {
   return route.name !== "login";
-});
-
-const showNavBarLogo = computed(() => {
-  return route.name !== "home";
 });
 
 function toggleSearchModal() {

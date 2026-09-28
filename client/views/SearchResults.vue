@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-full max-w-[700px] flex-col">
+  <div class="notes-search-results flex flex-col">
     <!-- Search Input -->
     <SearchInput :initialSearchTerm="props.searchTerm" class="mb-2" />
 
@@ -7,7 +7,7 @@
       <!-- Sort By -->
       <div class="flex justify-end">
         <CustomButton
-          :label="`Sort By: ${sortByName}`"
+          :label="`排序：${sortByName}`"
           :iconPath="mdiSort"
           class="mb-1"
           @click="toggleSortMenu"
@@ -18,7 +18,7 @@
       <!-- Search Results -->
       <div
         v-for="result in results"
-        class="mb-4 cursor-pointer rounded px-2 py-1 hover:bg-theme-background-elevated"
+        class="notes-search-result"
       >
         <RouterLink :to="{ name: 'note', params: { title: result.title } }">
           <!-- Title and Tags -->
@@ -73,9 +73,9 @@ const toast = useToast();
 
 const sortByName = computed(() => {
   const sortOptionNames = {
-    [searchSortOptions.title]: "Title",
-    [searchSortOptions.lastModified]: "Last Modified",
-    [searchSortOptions.score]: "Score",
+    [searchSortOptions.title]: "标题",
+    [searchSortOptions.lastModified]: "最近修改",
+    [searchSortOptions.score]: "相关程度",
   };
   return sortOptionNames[props.sortBy];
 });
@@ -88,7 +88,7 @@ function init() {
       if (results.value.length > 0) {
         loadingIndicator.value.setLoaded();
       } else {
-        loadingIndicator.value.setFailed("No Results", mdiMagnify);
+        loadingIndicator.value.setFailed("没有找到笔记", mdiMagnify);
       }
     })
     .catch((error) => {
@@ -123,20 +123,20 @@ function updateSortByParam(sortBy) {
 
 const menuItems = [
   {
-    label: "Sort By: Score",
+    label: "按相关程度排序",
     command: () => {
       updateSortByParam(searchSortOptions.score);
     },
   },
 
   {
-    label: "Sort By: Title",
+    label: "按标题排序",
     command: () => {
       updateSortByParam(searchSortOptions.title);
     },
   },
   {
-    label: "Sort By: Last Modified",
+    label: "按最近修改排序",
     command: () => {
       updateSortByParam(searchSortOptions.lastModified);
     },

@@ -1,17 +1,15 @@
 <template>
-  <nav class="mb-2 flex justify-between align-top md:mb-12">
-    <RouterLink :to="{ name: 'home' }" v-if="!hideLogo">
-      <Logo responsive></Logo>
-    </RouterLink>
-    <RouterLink
-      v-else
-      :to="{ name: 'home' }"
-      class="flex items-center gap-3 text-2xl font-semibold tracking-wide text-theme-text md:text-3xl"
-    >
-      <IconLabel :iconPath="mdilNoteMultiple" class="text-4xl" />
-      <span>共享笔记</span>
-    </RouterLink>
-    <div class="flex grow items-start justify-end">
+  <nav class="notes-nav" aria-label="笔记导航">
+    <div class="notes-brand">
+      <a href="/" class="notes-site-mark" aria-label="返回网站首页">
+        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+          <path d="M4 20 13 4l9 16H4Z" fill="none" stroke="currentColor" stroke-width="1.2" />
+          <path d="m4 20 9-7 9 7M13 4v9" fill="none" stroke="currentColor" stroke-width="1.2" />
+        </svg>
+      </a>
+      <RouterLink :to="{ name: 'home' }" class="notes-wordmark">共享笔记</RouterLink>
+    </div>
+    <div class="notes-nav-actions">
       <!-- New Note -->
       <RouterLink v-if="showNewButton" :to="{ name: 'new' }">
         <CustomButton :iconPath="mdilPlusCircle" label="新建笔记" />
@@ -41,8 +39,6 @@ import { computed, ref } from "vue";
 import { RouterLink, useRouter } from "vue-router";
 
 import CustomButton from "../components/CustomButton.vue";
-import IconLabel from "../components/IconLabel.vue";
-import Logo from "../components/Logo.vue";
 import PrimeMenu from "../components/PrimeMenu.vue";
 import { authTypes, params, searchSortOptions } from "../constants.js";
 import { useGlobalStore } from "../globalStore.js";
@@ -54,10 +50,6 @@ const globalStore = useGlobalStore();
 const menu = ref();
 const router = useRouter();
 const toast = useToast();
-
-defineProps({
-  hideLogo: Boolean,
-});
 
 const emit = defineEmits(["toggleSearchModal"]);
 
