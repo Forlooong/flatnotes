@@ -66,11 +66,12 @@ export async function getNotes(term, sort, order, limit) {
   }
 }
 
-export async function createNote(title, content) {
+export async function createNote(title, content, draftId) {
   try {
     const response = await api.post("api/notes", {
       title: title,
       content: content,
+      draftId,
     });
     return new Note(response.data);
   } catch (response) {
@@ -87,11 +88,12 @@ export async function getNote(title) {
   }
 }
 
-export async function updateNote(title, newTitle, newContent) {
+export async function updateNote(title, newTitle, newContent, draftId) {
   try {
     const response = await api.patch(`api/notes/${encodeURIComponent(title)}`, {
       newTitle: newTitle,
       newContent: newContent,
+      draftId,
     });
     return new Note(response.data);
   } catch (response) {
@@ -116,10 +118,11 @@ export async function getTags() {
   }
 }
 
-export async function createAttachment(file) {
+export async function createAttachment(file, draftId) {
   try {
     const formData = new FormData();
     formData.append("file", file);
+    if (draftId) formData.append("draftId", draftId);
     const response = await api.post("api/attachments", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -129,4 +132,16 @@ export async function createAttachment(file) {
   } catch (response) {
     return Promise.reject(response);
   }
+}
+
+export async function syncAttachmentDraft(draftId, content, settled = [], discard = false) {
+  const body = JSON.stringify({ content, settled, discard });
+  const response = await fetch(new URL(`api/attachment-drafts/${draftId}`, document.baseURI), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    keepalive: new Blob([body]).size < 60000,
+    body,
+  });
+  if (!response.ok) throw new Error("草稿附件同步失败");
 }

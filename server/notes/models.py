@@ -12,6 +12,7 @@ class NoteBase(CustomBaseModel):
 
 
 class NoteCreate(CustomBaseModel):
+    draft_id: Optional[str] = None
     title: Annotated[
         str,
         AfterValidator(strip_whitespace),
@@ -27,6 +28,7 @@ class Note(CustomBaseModel):
 
 
 class NoteUpdate(CustomBaseModel):
+    draft_id: Optional[str] = None
     new_title: Annotated[
         Optional[str],
         AfterValidator(strip_whitespace),

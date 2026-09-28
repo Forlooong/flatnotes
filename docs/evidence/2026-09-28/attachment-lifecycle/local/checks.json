@@ -1,0 +1,24 @@
+{
+  "production": false,
+  "checks": [
+    {
+      "width": 1440,
+      "duplicate_reuse": true,
+      "draft_leave_reload_retained": true,
+      "discard_removed": true,
+      "saved_note_retained": true,
+      "removed_reference_collected": true,
+      "floating_home": true
+    },
+    {
+      "width": 390,
+      "duplicate_reuse": true,
+      "draft_leave_reload_retained": true,
+      "discard_removed": true,
+      "saved_note_retained": true,
+      "removed_reference_collected": true,
+      "floating_home": true
+    }
+  ],
+  "pageErrors": []
+}

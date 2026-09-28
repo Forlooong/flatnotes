@@ -7,7 +7,6 @@
       </RouterLink>
     </div>
     <div class="notes-nav-actions">
-      <a href="/" class="notes-site-mark" aria-label="返回网站首页">网站首页</a>
       <!-- New Note -->
       <RouterLink v-if="showNewButton" :to="{ name: 'new' }">
         <CustomButton :iconPath="mdilPlusCircle" label="新建笔记" />

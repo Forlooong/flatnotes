@@ -6,7 +6,7 @@ from pathlib import Path
 from hashlib import sha256
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "server"))
-data = Path("work/tests/ui-data").resolve()
+data = Path(os.environ.get("FLATNOTES_UI_DATA", "work/tests/ui-data")).resolve()
 data.mkdir(parents=True, exist_ok=True)
 os.environ.update({"FLATNOTES_AUTH_TYPE": "oidc", "FLATNOTES_PATH_PREFIX": "/apps/notes", "FLATNOTES_PATH": str(data), "FLATNOTES_OIDC_ISSUER": "https://www.040323.xyz/auth", "FLATNOTES_OIDC_CLIENT_ID": "flatnotes", "FLATNOTES_OIDC_REDIRECT_URI": "https://www.040323.xyz/apps/notes/api/oidc/callback"})
 import main

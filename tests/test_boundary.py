@@ -64,6 +64,24 @@ class BoundaryTest(unittest.TestCase):
     def test_callback_cookie_state_binding(self):
         self.assertEqual(self.client.get("/apps/notes/api/oidc/callback?code=x&state=bad").status_code, 400)
 
+    def test_attachment_draft_boundary_and_save_cleanup(self):
+        from uuid import uuid4
+        draft_id = str(uuid4())
+        draft_url = "/apps/notes/api/attachment-drafts/" + draft_id
+        self.assertEqual(self.client.post(draft_url, headers={"Origin": "https://www.040323.xyz"}, json={"discard": True}).status_code, 401)
+        self.assertEqual(self.client.post(draft_url, headers=self.headers(origin=False), json={"discard": True}).status_code, 403)
+        uploaded = self.client.post("/apps/notes/api/attachments", headers=self.headers(), data={"draftId": draft_id}, files={"file": ("managed.txt", b"managed attachment")})
+        self.assertEqual(uploaded.status_code, 200)
+        image = uploaded.json()
+        content = f"[attachment]({image['url']})"
+        self.assertEqual(self.client.post(draft_url, headers=self.headers(), json={"content": content, "settled": [image["filename"]]}).status_code, 200)
+        note = {"title": "attachment-lifecycle", "content": content, "draftId": draft_id}
+        self.assertEqual(self.client.post("/apps/notes/api/notes", headers=self.headers(), json=note).status_code, 200)
+        self.assertEqual(self.client.get("/apps/notes/" + image["url"], headers=self.headers("b")).status_code, 200)
+        self.assertEqual(self.client.patch("/apps/notes/api/notes/attachment-lifecycle", headers=self.headers(), json={"newContent": "removed"}).status_code, 200)
+        self.assertEqual(self.client.get("/apps/notes/" + image["url"], headers=self.headers()).status_code, 404)
+        self.client.delete("/apps/notes/api/notes/attachment-lifecycle", headers=self.headers())
+
     def test_login_and_callback_redirect_responses(self):
         with patch.object(self.auth, "begin_login", return_value=("https://www.040323.xyz/auth/api/oidc/authorization", "bound-state")):
             response = self.client.get("/apps/notes/api/oidc/login", follow_redirects=False)

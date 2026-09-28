@@ -123,8 +123,8 @@ import { mdiNoteOffOutline } from "@mdi/js";
 import { mdilContentSave, mdilDelete } from "@mdi/light-js";
 import Mousetrap from "mousetrap";
 import { useToast } from "primevue/usetoast";
-import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from "vue";
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRouter } from "vue-router";
 
 import {
   apiErrorHandler,
@@ -133,6 +133,7 @@ import {
   deleteNote,
   getNote,
   updateNote,
+  syncAttachmentDraft,
 } from "../api.js";
 import { Note } from "../classes.js";
 import ConfirmModal from "../components/ConfirmModal.vue";
@@ -144,7 +145,6 @@ import ToastViewer from "../components/toastui/ToastViewer.vue";
 import { authTypes } from "../constants.js";
 import { useGlobalStore } from "../globalStore.js";
 import { getToastOptions } from "../helpers.js";
-import { isCurrentTokenStored } from "../tokenStorage.js";
 
 const props = defineProps({
   title: String,
@@ -154,6 +154,31 @@ const canModify = computed(
   () => globalStore.config.authType != authTypes.readOnly,
 );
 let contentChangedTimeout = null;
+let draftId = null;
+let settledUploads = [];
+let draftSync = Promise.resolve();
+const uploads = new Set();
+function draftKey() { return `flatnotes:attachment-draft:${String(note.value.title)}`; }
+function ensureDraftId() {
+  if (!draftId) {
+    draftId = localStorage.getItem(draftKey()) || crypto.randomUUID();
+    localStorage.setItem(draftKey(), draftId);
+  }
+  return draftId;
+}
+function syncDraft(content, discard = false) {
+  const id = ensureDraftId();
+  const settled = [...settledUploads];
+  const cleanupKey = `flatnotes:attachment-cleanup:${id}`;
+  if (discard) localStorage.setItem(cleanupKey, "pending");
+  draftSync = draftSync.catch(() => {}).then(() => syncAttachmentDraft(id, content, settled, discard)).then(() => {
+    if (discard) localStorage.removeItem(cleanupKey);
+  });
+  draftSync.catch(() => {
+    toast.add(getToastOptions(discard ? "附件清理暂未完成，下次打开编辑页时会重试。" : "草稿正文已留在此浏览器，附件同步未完成；请联网后再次保存。", "附件同步失败", "error"));
+  });
+  return draftSync;
+}
 const editMode = ref(false);
 const globalStore = useGlobalStore();
 const isSaveChangesModalVisible = ref(false);
@@ -175,6 +200,13 @@ function init() {
     return;
   }
 
+  draftId = null;
+  settledUploads = [];
+  // Keep failed explicit discards retryable instead of losing their draft IDs.
+  for (const key of Object.keys(localStorage).filter(key => key.startsWith("flatnotes:attachment-cleanup:"))) {
+    const id = key.slice("flatnotes:attachment-cleanup:".length);
+    syncAttachmentDraft(id, "", [], true).then(() => localStorage.removeItem(key)).catch(() => {});
+  }
   loadingIndicator.value.setLoading();
   if (props.title) {
     getNote(props.title)
@@ -223,6 +255,7 @@ function editHandler() {
 }
 
 function setEditMode() {
+  ensureDraftId();
   newTitle.value = note.value.title;
   unsavedChanges.value = false;
   editMode.value = true;
@@ -238,9 +271,12 @@ function deleteHandler() {
   isDeleteModalVisible.value = true;
 }
 
-function deleteConfirmedHandler() {
+async function deleteConfirmedHandler() {
+  await Promise.all([...uploads]);
   deleteNote(note.value.title)
     .then(() => {
+      clearDraft();
+      editMode.value = false;
       toast.add(getToastOptions("笔记已删除 ✓", "成功", "success"));
       router.push({ name: "home" });
     })
@@ -250,7 +286,10 @@ function deleteConfirmedHandler() {
 }
 
 // Note Saving
-function saveHandler(close = false) {
+async function saveHandler(close = false) {
+  await Promise.all([...uploads]);
+  clearContentChangedTimeout();
+  try { await saveDraft(); } catch { return; }
   // Save Default Editor Mode
   saveDefaultEditorMode();
 
@@ -278,9 +317,10 @@ function saveHandler(close = false) {
 }
 
 function saveNew(newTitle, newContent, close = false) {
-  createNote(newTitle, newContent)
+  createNote(newTitle, newContent, ensureDraftId())
     .then((data) => {
-      clearDraft();
+      clearDraft(true);
+      unsavedChanges.value = false;
       note.value = data;
       router
         .push({
@@ -299,13 +339,15 @@ function saveNew(newTitle, newContent, close = false) {
 function saveExisting(newTitle, newContent, close = false) {
   // Return if no changes
   if (newTitle == note.value.title && newContent == note.value.content) {
+    clearDraft();
     noteSaveSuccess(close);
     return;
   }
 
-  updateNote(note.value.title, newTitle, newContent)
+  updateNote(note.value.title, newTitle, newContent, ensureDraftId())
     .then((data) => {
-      clearDraft();
+      clearDraft(true);
+      unsavedChanges.value = false;
       note.value = data;
       router.replace({ name: "note", params: { title: note.value.title } });
       noteSaveSuccess(close);
@@ -347,7 +389,8 @@ function closeHandler() {
   }
 }
 
-function closeNote() {
+async function closeNote() {
+  await Promise.all([...uploads]);
   clearDraft();
   editMode.value = false;
   if (isNewNote.value) {
@@ -364,13 +407,19 @@ function addImageBlobHook(file, callback) {
   )?.value;
 
   // Upload the image then use the callback to insert the URL into the editor
-  postAttachment(file).then(function (data) {
+  const upload = postAttachment(file)?.then(function (data) {
     if (data) {
       // If the user has entered an alt text, use it. Otherwise, use the filename returned by the API.
       const altText = altTextInputValue ? altTextInputValue : data.filename;
       callback(data.url, altText);
+      settledUploads.push(data.filename);
+      saveDraft();
     }
   });
+  if (upload) {
+    uploads.add(upload);
+    upload.finally(() => uploads.delete(upload));
+  }
 }
 
 function postAttachment(file) {
@@ -384,7 +433,7 @@ function postAttachment(file) {
   toast.add(getToastOptions("正在上传附件…"));
 
   // Upload the attachment
-  return createAttachment(file)
+  return createAttachment(file, ensureDraftId())
     .then((data) => {
       // Success Toast
       toast.add(
@@ -441,21 +490,51 @@ function contentChangedHandler() {
 
 // Drafts
 function saveDraft() {
+  if (!toastEditor.value) return;
   const content = toastEditor.value.getMarkdown();
-  const userHasPersistedToken = isCurrentTokenStored();
-  if (content) {
-    if (userHasPersistedToken) {
-      localStorage.setItem(note.value.title, content);
-    } else {
-      sessionStorage.setItem(note.value.title, content);
-    }
-  }
+  // OIDC drafts survive closing the tab; explicit discard removes them.
+  localStorage.setItem(note.value.title, content);
+  sessionStorage.removeItem(note.value.title);
+  return syncDraft(content);
 }
 
-function clearDraft() {
+function clearDraft(saved = false) {
+  clearContentChangedTimeout();
+  if (uploads.size && !saved) return;
+  if (draftId || localStorage.getItem(draftKey())) {
+    if (!saved) syncDraft("", true);
+    localStorage.removeItem(draftKey());
+  }
   localStorage.removeItem(note.value.title);
   sessionStorage.removeItem(note.value.title);
+  draftId = null;
+  settledUploads = [];
 }
+
+function preserveDraft() {
+  clearContentChangedTimeout();
+  if (!editMode.value || !toastEditor.value) return;
+  if (isContentChanged()) return saveDraft();
+  clearDraft();
+  return draftSync;
+}
+async function leaveEditor() {
+  await Promise.all([...uploads]);
+  await preserveDraft();
+  setBeforeUnloadConfirmation(false);
+}
+onBeforeRouteLeave(leaveEditor);
+onBeforeRouteUpdate(async (to) => {
+  // Saving/renaming has already committed this title and released its draft.
+  if (to.params.title !== note.value.title) await leaveEditor();
+});
+function pageHideHandler() { preserveDraft(); }
+onMounted(() => window.addEventListener("pagehide", pageHideHandler));
+onBeforeUnmount(() => {
+  clearContentChangedTimeout();
+  setBeforeUnloadConfirmation(false);
+  window.removeEventListener("pagehide", pageHideHandler);
+});
 
 function loadDraft() {
   const localDraft = localStorage.getItem(note.value.title);

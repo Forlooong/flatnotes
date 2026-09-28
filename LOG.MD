@@ -121,3 +121,16 @@ HASH: 810eba0f45eef55bd3c290e160e9feff0a126a299e05d31cf490ecdbfb26a345
 Git：本条随文档/验证收尾提交，生产source仍为上列SHA；文档HEAD由git log/远端分支核对，不自动部署。project-docs非Git仓库。
 
 HASH: e7f173c914c46075c033d68caf4b11b3933940350134eabd785893e3668792c7
+
+## 2026-09-28 附件生命周期、独立返回入口与锁闪烁候选
+
+- 目标：执行用户新增三项；已确认保留草稿引用，明确丢弃后再清理。
+- 修改：Flatnotes 附件 SHA256 去重、草稿引用 JSON、受管文件清理及同锁笔记写入；前端上传/保存/离开/丢弃联动。返回入口独立固定右下角；首页复核保留已确认显示并合并请求，导航仍等待服务端授权。
+- 关键文件：server/attachments/lifecycle.py、server/main.py、client/views/Note.vue、client/api.js、App.vue/style.css，网站 custom.js 与指纹资源路径；统一按钮规范和附件行为文档。
+- 存量：只读盘点生产 0 篇笔记、0 个附件，故此次存量清理删除 0，不移除未知数据。
+- 验证：npm build；附件单元 3 项和 HTTP 边界 5 项通过。真实 Chromium 1440/390 草稿离开/刷新/返回网站保留、丢弃清理、重复复用、保存保护、移除引用清理、独立按钮均通过；首页延迟响应模拟锁闪烁 0、过期阻止、仅授权 Notes 进入通过。
+- 发现与处理：旧 fixture 混合编码导致扫描失败，改用本轮隔离测试目录；扫描失败保留附件并告警。脚本曾误用不存在的 dialog role 和本地根路径，已修正等待/本地主页 fixture 后得到通过报告。原编辑器 SVG width=auto 控制台警告仍存在，本轮无 pageerror，不扩大修改。
+- 风险/限制：未纳管历史/旧 API 上传不自动删除；浏览器数据被人为清空、崩溃或离线时引用可能保守保留，需盘点再清理。生产发布/真实账户测试尚待执行；用户视觉审核未确认。
+- Git commit：随源码候选提交，完整固定 SHA 见后续发布记录。测试证据 docs/evidence/2026-09-28/attachment-lifecycle/；截图本地忽略，测试代码与结果分离。
+
+HASH: 81938eb6244e579537c69bc26139c01d3a93298e65e2ff0c256f229de80ea6a0

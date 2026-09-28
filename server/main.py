@@ -3,12 +3,14 @@ import secrets
 from urllib.parse import quote
 from starlette.concurrency import run_in_threadpool
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, UploadFile
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, UploadFile, Form
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 import api_messages
 from attachments.base import BaseAttachments
+from attachments.lifecycle import AttachmentLifecycle
+from attachments.models import DraftAttachments
 from attachments.models import AttachmentCreateResponse
 from auth.base import BaseAuth
 from auth.models import Login, Token
@@ -21,6 +23,7 @@ global_config = GlobalConfig()
 auth: BaseAuth = global_config.load_auth()
 note_storage: BaseNotes = global_config.load_note_storage()
 attachment_storage: BaseAttachments = global_config.load_attachment_storage()
+attachment_lifecycle = AttachmentLifecycle(attachment_storage)
 auth_deps = [Depends(auth.authenticate)] if auth else []
 router = APIRouter()
 app = FastAPI(
@@ -182,7 +185,10 @@ if global_config.auth_type != AuthType.READ_ONLY:
     def post_note(note: NoteCreate):
         """Create a new note."""
         try:
-            return note_storage.create(note)
+            with attachment_lifecycle.lock:
+                result = note_storage.create(note)
+                attachment_lifecycle.release(note.draft_id)
+                return result
         except ValueError:
             raise HTTPException(
                 status_code=400,
@@ -201,7 +207,10 @@ if global_config.auth_type != AuthType.READ_ONLY:
     )
     def patch_note(title: str, data: NoteUpdate):
         try:
-            return note_storage.update(title, data)
+            with attachment_lifecycle.lock:
+                result = note_storage.update(title, data)
+                attachment_lifecycle.release(data.draft_id)
+                return result
         except ValueError:
             raise HTTPException(
                 status_code=400,
@@ -222,7 +231,9 @@ if global_config.auth_type != AuthType.READ_ONLY:
     )
     def delete_note(title: str):
         try:
-            note_storage.delete(title)
+            with attachment_lifecycle.lock:
+                note_storage.delete(title)
+                attachment_lifecycle.collect()
         except ValueError:
             raise HTTPException(
                 status_code=400,
@@ -313,16 +324,23 @@ def get_attachment(filename: str):
 
 if global_config.auth_type != AuthType.READ_ONLY:
 
+    @router.post("/api/attachment-drafts/{draft_id}", dependencies=auth_deps)
+    def sync_attachment_draft(draft_id: str, data: DraftAttachments):
+        try:
+            return attachment_lifecycle.sync(draft_id, data.content, data.settled, data.discard)
+        except ValueError:
+            raise HTTPException(400, "无效的草稿标识")
+
     # Create Attachment
     @router.post(
         "/api/attachments",
         dependencies=auth_deps,
         response_model=AttachmentCreateResponse,
     )
-    def post_attachment(file: UploadFile):
+    def post_attachment(file: UploadFile, draft_id: str | None = Form(None, alias="draftId")):
         """Upload an attachment."""
         try:
-            return attachment_storage.create(file)
+            return attachment_lifecycle.upload(file, draft_id)
         except ValueError:
             raise HTTPException(
                 status_code=400,

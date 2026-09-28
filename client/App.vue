@@ -12,6 +12,12 @@
       @toggleSearchModal="toggleSearchModal"
     />
     <RouterView />
+    <a v-if="showNavBar" href="/" class="app-return-home print:hidden" aria-label="返回网站首页">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9" />
+      </svg>
+      <span>返回首页</span>
+    </a>
   </LoadingIndicator>
 </template>
 
