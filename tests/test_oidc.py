@@ -64,7 +64,7 @@ class OIDCAuthTest(unittest.TestCase):
             self.auth.complete_login(state, "code", "site-test")
 
     def test_invalid_claims_are_rejected(self):
-        for changes in ({"nonce": "wrong"}, {"iss": "https://evil.test"}, {"aud": "other"}, {"iat": int(time.time()) + 100}, {"exp": 1}, {"sub": ""}, {"aud": ["flatnotes", "other"]}, {"azp": "other"}):
+        for changes in ({"nonce": "wrong"}, {"iss": "https://evil.test"}, {"aud": "other"}, {"iat": int(time.time()) + 100}, {"exp": 1}, {"sub": ""}, {"aud": ["flatnotes", "other"]}, {"azp": "other"}, {"at_hash": "invalid"}):
             with self.subTest(changes=changes), self.assertRaises(HTTPException):
                 self.complete(changes=changes)
 
@@ -98,7 +98,7 @@ class OIDCAuthTest(unittest.TestCase):
             request = Request({"type": "http", "method": "POST", "headers": [(b"origin", origin.encode())]})
             with self.assertRaises(HTTPException):
                 self.auth.check_origin(request)
-        for value in ("https://evil.test", "//evil.test", "/apps/notes-evil/", "/apps/notes/\\evil", "/member/"):
+        for value in ("https://evil.test", "//evil.test", "/apps/notes-evil/", "/apps/notes/\\evil", "/member/", "/apps/notes/%2e%2e/%2e%2e/member/"):
             self.assertEqual(self.auth._safe_redirect(value), "/apps/notes/")
 
     def test_discovery_issuer_is_checked(self):

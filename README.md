@@ -10,7 +10,7 @@ Flatnotes 的 markdown 笔记、Whoosh 索引和附件使用同一个共享 `/da
 
 ```text
 uv sync --locked --no-dev
-uv run --no-dev python -m unittest discover -s tests -v
+uv run --no-dev --with httpx python -m unittest discover -s tests -v
 npm ci
 npm run build
 python -m compileall -q server

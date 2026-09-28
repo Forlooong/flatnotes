@@ -40,6 +40,11 @@ rollback() {
         fi
         systemctl daemon-reload
         systemctl start flatnotes.service
+    else
+        systemctl disable flatnotes.service
+        if test "$(readlink -f "$root/current")" = "$release"; then
+            unlink "$root/current"
+        fi
     fi
 }
 systemctl stop flatnotes.service 2>/dev/null || true

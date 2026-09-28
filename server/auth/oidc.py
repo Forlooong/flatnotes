@@ -7,7 +7,7 @@ from hashlib import sha256
 from http.client import HTTPException as HttpClientException
 from typing import Any
 from urllib.error import HTTPError, URLError
-from urllib.parse import quote, urlencode, urlsplit
+from urllib.parse import quote, unquote, urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from fastapi import HTTPException, Request as FastAPIRequest
@@ -298,6 +298,9 @@ class OIDCAuth(BaseAuth):
         if parsed.scheme or parsed.netloc or not parsed.path.startswith("/") or "\\" in redirect or any(ord(c) < 32 for c in redirect):
             return default
         path = parsed.path or "/"
+        decoded_path = unquote(path)
+        if "\\" in decoded_path or any(part in (".", "..") for part in decoded_path.split("/")):
+            return default
         prefix = self.path_prefix or "/"
         if prefix != "/" and not (path == prefix or path.startswith(prefix + "/")):
             return default
