@@ -76,3 +76,31 @@ HASH: 3c30109d7c500ad6f4358714c0cb2947e5edbb17050973a1990dcf16ba4b0cf4
 Git：生产 source 76dd37d075f0cb120d0677969f793fad3108594d。本轮随后仅提交测试/证据/文档收尾，生产固定源码不随文档提交变化。
 
 HASH: 49e9a4764dcb5bbd7a00d63d7b71f5a7ef182ed3f0bc0defbea4c5c18ae96170
+
+## 2026-09-28T13:05:09+08:00 — 六项前端整改需求与新会话文档交接
+
+本轮目标：按用户要求，仅将六项反馈规范化并同步项目记忆，下一会话再实施；不修改页面/代码/资源/配置，不执行 commit/push/生产部署或新功能测试。
+用户反馈：当前桌面布局与居中较差；左上角品牌要 Flatnotes、图标用首页应用图标；网站 favicon 与应用标签图标/名称需改；新建页布局和中文需改；首页未登录显示锁且不可进入、登录后才可点击；应用普通展示区不能出现输入光标。六项均待实施，视觉验收未通过，不再仅记“等待用户反馈”。
+修改范围与关键文件：README.md、SPEC.md、LOG.MD、LOG-INDEX.MD。规范与验收主文档 D:/DEV/Lab/project-docs/docs/plans/flatnotes-ui-revision.md；完整执行提示词 docs/prompts/flatnotes-ui-revision-prompt.md。既有文档入口指向新版本，避免旧品牌/旧生产SHA/失效进程信息误导下一会话。
+规范决定：品牌 Flatnotes 替代旧“共享笔记”品牌要求，共享数据与菜单功能不变；notes.svg 为应用图标基线。网站 favicon 默认复用现有网站品牌，这是实施默认解释，不是用户另指定新图标。布局居中指主内容而非全体文本居中。输入光标按首页区分普通展示区域和真实输入区域，后者保留正常编辑/选中/光标。登录解锁只开放已部署且获授权应用，其他七项仍未部署不可点击；直接深层 URL 的 OIDC 自动回跳与服务端授权不变。
+为什么修改：自动测试曾通过，但用户指出实际视觉和交互仍有问题；正式当前文档必须明确待整改，并把新确认的设计约束与已经验证的历史功能分开。
+只读恢复：本轮开始 Flatnotes HEAD 3bcfbdb3ef82f400930b649de1be750a82742b98/vps-flatnotes-oidc，vps-site HEAD 56f7a7650a2524dea128cdc9f6aa14e501994ec2/main，两仓库干净；当前只留下本轮文档未提交修改，HEAD 不变。最后记录生产网站 718a5d77d6c5f530c145e7da5fb758b494f16c8a、身份 c680822408814f2bb03d013431d46fc6488a2ea6、Notes 76dd37d075f0cb120d0677969f793fad3108594d，回滚 01946e76e28ddf61feae3df9bdb4c87a1e9b3ef4。本轮未连接 VPS 复核，生产版本来源是历史发布证据，下一轮发布前需再只读检查。
+验证与结果：读取三项目 AGENTS/README/SPEC/索引并按上轮 HASH 定位 LOG；核对本地 Git、实际首页 notes.svg 参考与首页光标规则。旧 check_style_production.py 进程已不在运行、style-unification/production-checks.json 不存在；旧 session 读取返回 Unknown process id，不能认作线上样式验收通过，结束原因未核实。文档检查核对六项、路径、状态及LOG索引；不执行构建或业务浏览器测试，不引用旧通过结果替代新验证。
+风险与遗留：六项代码全部尚未实现，视觉验收未通过；正式成员样式浏览器流程尚未完成，旧 PID/会话不可依赖。下一轮针对修改做桌面/移动实际流程和用户视觉审核，沿已授权固定commit发布链路保留回滚/保护证据。认证/OIDC、共享目录、身份期限、3x-ui/Xray等保护资源不变，其他遗留不扩大处理。
+Git：本轮仅文档修改，未 commit/push；上列 HEAD 为本轮起点，不是新部署。没有创建测试脚本/产物，没有删除未知文件或改写历史 LOG。LOG 只追加，LOG-INDEX 只保存索引。
+
+HASH: c4664e75c313c0a51228c360de8271c13ee0afb9aea964de12cf0ed60559542e
+
+## 2026-09-28 六项前端整改候选与本地浏览器验证
+
+时间：2026-09-28T05:31:56.972083+00:00；本轮目标仅为已确认的六项前端整改，保留上一轮未提交交接文档。
+修改：Flatnotes 960px 居中内容与导航、首页居中引导与搜索；首页 notes.svg 品牌/带构建指纹 favicon/Flatnotes 标签；中文新建编辑、上游 zh-CN locale、标题与操作排列、桌面双栏/移动标签预览、可用的模式切换与附件；普通展示 cursor:default，输入/编辑保留 caret 与选择。网站默认禁用卡片，读取真实 state 与现有 /member/ 同组授权后只开放 Notes，回到首页/聚焦/可见性/30秒复核和点击前重新校验；新增三角 favicon 与不可变资源包 fa29a828efbcfc5a。
+关键文件：flatnotes/client/{style.css,index.html,router.js,api.js,views/Note.vue,partials/NavBar.vue,partials/SearchInput.vue,components/toastui/*,components/ConfirmModal.vue,components/LoadingIndicator.vue,assets/notes.svg}；vps-site/public/index.html、public/assets/homepage/fa29a828efbcfc5a/、server/homepage-routes.conf；专项 tests/check_revision.py 与旧测试选择器。未改认证协议、身份配置、依赖锁或数据规范。
+决定与原因：沿用灰绿主题和既有图标；主区域等距留白而非正文居中。旧 CSS 强制高度使编辑器预览遮挡底部模式切换，改用编辑器 height/setHeight 并响应窗口变化。上游 CSS 的 Scroll 单独中文化；移动展开工具栏约束在容器内。favicon 指纹避免旧缓存，网站路由只更新同内容 auth-theme 资源包路径，不重启身份服务。
+验证：npm run build 通过（保留既有大 chunk 提示）；真实 Chromium 1280/1440/1920/390/320，后两者启用移动设备与触控模拟，创建、中文校验、保存、深层刷新、编辑、删除、草稿恢复、Markdown/富文本/预览、图片上传/取回、浅暗主题、图标 MIME/字节/标签、居中/不横向溢出、光标/复制通过。网站独立桌面移动、资源/目录刷新/纪念日/折叠通过。mock 网站会话响应验证未登录/无权限/失效/错误/BFCache，不能声称真实 provider 自然过期已重测。结果 flatnotes/docs/evidence/2026-09-28/ui-revision/local/local-checks.json 和 vps-site/docs/evidence/2026-09-28/ui-revision/local-checks.json。
+诊断边界：扩大模式切换验证时一次出现 removeChild DOM 异常，增加调用栈捕获后完整五尺寸与1280/390局部复测未再复现，未确认根因，不宣称已修复该间歇异常。最初 Playwright 因 aria-disabled 拒绝点击属于测试驱动条件，改成真实强制鼠标点击验证禁用；重复诊断上传同名附件时服务端自动重命名，测试改以返回文件名断言。
+生产只读：网站 718a5d77d6c5f530c145e7da5fb758b494f16c8a、Notes 76dd37d075f0cb120d0677969f793fad3108594d、身份 c680822408814f2bb03d013431d46fc6488a2ea6；/data UUID 正确。保护原始快照留本地 vps-site/work/tests/ui-revision，未改保护资源。身份 started=2026-09-28T03:26:38.383255554Z/restarts=0。
+风险与遗留：本条为发布前候选，正式账户流程与生产部署在后续记录；用户视觉审核未通过/待新版本确认。真实自然过期、代理客户端、整机重启等不借旧测试声明完成。临时截图/隔离fixture/测试图片位于忽略目录，最终清理另记。
+Git：本条随本轮源码固定 commit 提交，SHA 在后续发布记录；project-docs 非 Git 仓库。
+
+HASH: 810eba0f45eef55bd3c290e160e9feff0a126a299e05d31cf490ecdbfb26a345

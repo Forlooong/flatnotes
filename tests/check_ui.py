@@ -15,7 +15,7 @@ with sync_playwright() as p:
         errors = []
         page.on("pageerror", lambda error: errors.append(str(error)))
         page.goto("http://127.0.0.1:18081/apps/notes/", wait_until="networkidle")
-        expect(page.get_by_text("共享笔记", exact=True)).to_be_visible()
+        expect(page.get_by_text("Flatnotes", exact=True)).to_be_visible()
         expect(page.get_by_role("link", name="欢迎使用", exact=True)).to_be_visible()
         assert page.get_by_role("menuitem", name="搜索笔记").count() == 0
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
@@ -32,7 +32,7 @@ with sync_playwright() as p:
         page.reload(wait_until="networkidle")
         expect(page.locator(".toast-viewer")).to_contain_text("共享笔记测试")
         page.get_by_role("link", name="新建笔记").click()
-        expect(page.get_by_placeholder("Title")).to_be_visible()
+        expect(page.get_by_placeholder("笔记标题")).to_be_visible()
         expect(page.locator(".toastui-editor-defaultUI")).to_be_visible()
         assert not errors, errors
         results.append({"viewport": width, "home_menu_search_theme_editor_deep_refresh": "passed", "provider": "isolated fixture, not production OIDC"})

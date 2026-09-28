@@ -113,7 +113,7 @@ function search() {
     });
     emit("search");
   } else {
-    toast.add(getToastOptions("Please enter a search term.", "Error", "error"));
+    toast.add(getToastOptions("请输入搜索内容。", "无法搜索", "error"));
   }
 }
 

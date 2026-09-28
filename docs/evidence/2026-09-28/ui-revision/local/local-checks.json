@@ -1,0 +1,33 @@
+{
+  "environment": "local app fixture + mocked homepage session responses",
+  "results": [
+    {
+      "anonymous_mouse_keyboard_refresh": "passed"
+    },
+    {
+      "viewport": 1280,
+      "centered_layout_brand_favicon_chinese_validation_dialogs_create_read_edit_delete_cursor_theme": "passed"
+    },
+    {
+      "viewport": 1440,
+      "centered_layout_brand_favicon_chinese_validation_dialogs_create_read_edit_delete_cursor_theme": "passed"
+    },
+    {
+      "viewport": 1920,
+      "centered_layout_brand_favicon_chinese_validation_dialogs_create_read_edit_delete_cursor_theme": "passed"
+    },
+    {
+      "viewport": 390,
+      "centered_layout_brand_favicon_chinese_validation_dialogs_create_read_edit_delete_cursor_theme": "passed"
+    },
+    {
+      "viewport": 320,
+      "centered_layout_brand_favicon_chinese_validation_dialogs_create_read_edit_delete_cursor_theme": "passed"
+    },
+    {
+      "server_state_fixture_denied_expired_bfcache_failed": "passed; UI integration only, not real provider expiry"
+    }
+  ],
+  "pageErrors": [],
+  "visual_user_approval": "pending"
+}

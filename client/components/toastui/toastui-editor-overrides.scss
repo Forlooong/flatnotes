@@ -1,7 +1,7 @@
 .ProseMirror,
 .toastui-editor-defaultUI .ProseMirror,
 .toastui-editor-md-container .toastui-editor-md-preview {
-  padding: 1rem 0 0 0;
+  padding: 20px;
 }
 
 .ProseMirror {
@@ -281,4 +281,27 @@
 
 .toastui-editor-contents th p {
   color: rgb(var(--theme-text));
+}
+
+// Displayed prose stays selectable without suggesting that it is editable.
+.toast-viewer .toastui-editor-contents { cursor: default; }
+.toast-viewer .toastui-editor-contents a { cursor: pointer; }
+.toastui-editor-defaultUI .ProseMirror[contenteditable="true"] { cursor: text; }
+.notes-document .toastui-editor-defaultUI { border: 1px solid rgb(var(--theme-border)); }
+.toastui-editor-popup { max-width: calc(100vw - 56px); }
+.toastui-editor-popup-body input { min-width: 0; max-width: 100%; }
+.toastui-editor-defaultUI-toolbar .scroll-sync::before { content: '同步'; }
+.toastui-editor-defaultUI-toolbar .scroll-sync.active::before { color: rgb(var(--theme-brand)); }
+.toastui-editor-defaultUI-toolbar input:checked + .switch { background: rgb(var(--theme-border)); }
+.toastui-editor-defaultUI-toolbar input:checked + .switch::before,
+.toastui-editor-popup-body .toastui-editor-ok-button { background: rgb(var(--theme-brand)); }
+.toastui-editor-popup-body .toastui-editor-ok-button { color: rgb(var(--theme-background)); }
+.toastui-editor-md-preview-highlight { background: rgb(var(--theme-background-elevated)); }
+.toastui-editor-contents a { color: rgb(var(--theme-brand)); text-decoration: underline; }
+@media (max-width: 760px) {
+  .toastui-editor-defaultUI-toolbar { padding: 0 6px; }
+  .toastui-editor-popup { left: 0 !important; margin-left: 0 !important; }
+  .toastui-editor-dropdown-toolbar { left: 0 !important; max-width: 100%; height: auto; flex-wrap: wrap; }
+  .toastui-editor-defaultUI .ProseMirror,
+  .toastui-editor-md-container .toastui-editor-md-preview { padding: 16px; }
 }

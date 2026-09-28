@@ -58,12 +58,12 @@ with sync_playwright() as p:
             assert context.request.get(APP + "/api/auth-check").status == 200
         # Create and save with the actual upstream editor UI.
         page = pages[0]
-        page.get_by_placeholder("Title").fill(title)
+        page.get_by_placeholder("笔记标题").fill(title)
         editor = page.locator(".toastui-editor.md-mode .ProseMirror")
         editor.click()
         page.keyboard.type("共享笔记真实验收 #shared")
         with page.expect_response(lambda r: r.request.method == "POST" and r.url == APP + "/api/notes"):
-            page.get_by_role("button", name="Save", exact=True).click()
+            page.get_by_role("button", name="保存", exact=True).click()
         expect(page).to_have_url(APP + "/note/" + quote(title))
         created = True
         note_url = APP + "/note/" + quote(title)
@@ -73,13 +73,13 @@ with sync_playwright() as p:
             page.reload(wait_until="networkidle")
             expect(page.locator(".toast-viewer")).to_contain_text("共享笔记真实验收")
         page = pages[1]
-        page.get_by_role("button", name="Edit", exact=True).click()
+        page.get_by_role("button", name="编辑", exact=True).click()
         editor = page.locator(".toastui-editor.md-mode .ProseMirror")
         editor.click()
         page.keyboard.press("ControlOrMeta+A")
         page.keyboard.type("第二位成员共享编辑 #shared")
         with page.expect_response(lambda r: r.request.method == "PATCH" and r.url == api_url):
-            page.get_by_role("button", name="Save", exact=True).click()
+            page.get_by_role("button", name="保存", exact=True).click()
         assert a.request.get(api_url).json()["content"].startswith("第二位成员共享编辑")
         uploaded = a.request.post(APP + "/api/attachments", headers={"Origin": BASE}, multipart={"file": {"name": title + ".txt", "mimeType": "text/plain", "buffer": b"acceptance attachment"}})
         assert uploaded.status == 200
@@ -93,7 +93,7 @@ with sync_playwright() as p:
         for page, width in zip(pages, (1440, 390)):
             page.bring_to_front()
             page.goto(APP + "/", wait_until="networkidle")
-            expect(page.get_by_text("共享笔记", exact=True)).to_be_visible()
+            expect(page.get_by_text("Flatnotes", exact=True)).to_be_visible()
             assert page.get_by_role("menuitem", name="全部笔记").count() == 0
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
             page.screenshot(path=str(OUT / f"production-home-{width}.png"), animations="disabled", timeout=60000)

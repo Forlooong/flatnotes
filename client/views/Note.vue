@@ -2,9 +2,9 @@
   <!-- Confirm Deletion Modal -->
   <ConfirmModal
     v-model="isDeleteModalVisible"
-    title="Confirm Deletion"
-    :message="`Are you sure you want to delete the note '${note.title}'?`"
-    confirmButtonText="Delete"
+    title="确认删除"
+    :message="`确定删除笔记“${note.title}”吗？此操作无法撤销。`"
+    confirmButtonText="删除"
     confirmButtonStyle="danger"
     @confirm="deleteConfirmedHandler"
   />
@@ -12,11 +12,11 @@
   <!-- Save Changes Modal -->
   <ConfirmModal
     v-model="isSaveChangesModalVisible"
-    title="Save Changes"
-    message="Do you want to save your changes?"
-    confirmButtonText="Save"
+    title="保存修改"
+    message="是否保存本次修改？"
+    confirmButtonText="保存"
     confirmButtonStyle="success"
-    rejectButtonText="Discard"
+    rejectButtonText="放弃修改"
     rejectButtonStyle="danger"
     @confirm="saveHandler((close = true))"
     @reject="closeNote"
@@ -25,11 +25,11 @@
   <!-- Draft Modal -->
   <ConfirmModal
     v-model="isDraftModalVisible"
-    title="Draft Detected"
-    message="There is an unsaved draft of this note stored in this browser. Do you want to resume the draft version or delete it?"
-    confirmButtonText="Resume Draft"
+    title="发现未保存的草稿"
+    message="此浏览器中保留了这篇笔记的草稿。要继续编辑草稿，还是删除草稿？"
+    confirmButtonText="继续草稿"
     confirmButtonStyle="cta"
-    rejectButtonText="Delete Draft"
+    rejectButtonText="删除草稿"
     rejectButtonStyle="danger"
     @confirm="setEditMode()"
     @reject="
@@ -40,31 +40,31 @@
 
   <LoadingIndicator ref="loadingIndicator" class="notes-document flex flex-col">
     <!-- Header -->
-    <div class="notes-document-header flex flex-col-reverse md:flex-row md:items-baseline">
+    <div class="notes-document-header">
       <!-- Title -->
-      <div class="notes-document-title grow truncate leading-[1.6em]">
+      <div class="notes-document-title">
         <span v-show="!editMode" :title="note.title">{{ note.title }}</span>
         <input
           v-show="editMode"
           v-model.trim="newTitle"
           class="w-full bg-theme-background outline-none"
-          placeholder="Title"
+          placeholder="笔记标题" aria-label="笔记标题"
         />
       </div>
 
       <!-- Buttons -->
-      <div class="flex shrink-0 self-end md:self-baseline print:hidden">
+      <div class="notes-document-actions print:hidden">
         <!-- Delete Button -->
         <CustomButton
           v-show="canModify && !isNewNote"
-          label="Delete"
+          label="删除"
           :iconPath="mdilDelete"
           @click="deleteHandler"
         />
         <!-- Save Button -->
         <CustomButton
           v-show="editMode"
-          label="Save"
+          label="保存"
           :iconPath="mdilContentSave"
           @click="saveHandler((close = false))"
           class="relative ml-1"
@@ -78,7 +78,7 @@
         <!-- Edit Toggle -->
         <Toggle
           v-if="canModify"
-          label="Edit"
+          label="编辑"
           :isOn="editMode"
           class="ml-1"
           @click="toggleEditModeHandler"
@@ -184,7 +184,7 @@ function init() {
       })
       .catch((error) => {
         if (error.response?.status === 404) {
-          loadingIndicator.value.setFailed("Note not found", mdiNoteOffOutline);
+          loadingIndicator.value.setFailed("笔记不存在或已被删除", mdiNoteOffOutline);
         } else {
           loadingIndicator.value.setFailed();
           apiErrorHandler(error, toast);
@@ -241,7 +241,7 @@ function deleteHandler() {
 function deleteConfirmedHandler() {
   deleteNote(note.value.title)
     .then(() => {
-      toast.add(getToastOptions("Note deleted ✓", "Success", "success"));
+      toast.add(getToastOptions("笔记已删除 ✓", "成功", "success"));
       router.push({ name: "home" });
     })
     .catch((error) => {
@@ -257,14 +257,14 @@ function saveHandler(close = false) {
   // Empty Title Validation
   if (!newTitle.value) {
     toast.add(
-      getToastOptions("Cannot save note without a title.", "Invalid", "error"),
+      getToastOptions("请先填写笔记标题。", "无法保存", "error"),
     );
     return;
   }
 
   // Invalid Character Validation
   if (reservedFilenameCharacters.test(newTitle.value)) {
-    badFilenameToast("Title");
+    badFilenameToast("标题");
     return;
   }
 
@@ -317,13 +317,13 @@ function noteSaveFailure(error) {
   if (error.response?.status === 409) {
     toast.add(
       getToastOptions(
-        "A note with this title already exists. Please try again with a new title.",
-        "Duplicate",
+        "已有同名笔记，请修改标题后重试。",
+        "名称重复",
         "error",
       ),
     );
   } else if (error.response?.status === 413) {
-    entityTooLargeToast("note");
+    entityTooLargeToast("笔记");
   } else {
     apiErrorHandler(error, toast);
   }
@@ -335,7 +335,7 @@ function noteSaveSuccess(close = false) {
     closeNote();
   }
   setBeforeUnloadConfirmation(false);
-  toast.add(getToastOptions("Note saved successfully ✓", "Success", "success"));
+  toast.add(getToastOptions("笔记已保存 ✓", "成功", "success"));
 }
 
 // Note Closure
@@ -376,12 +376,12 @@ function addImageBlobHook(file, callback) {
 function postAttachment(file) {
   // Invalid Character Validation
   if (reservedFilenameCharacters.test(file.name)) {
-    badFilenameToast("Title");
+    badFilenameToast("标题");
     return;
   }
 
   // Uploading Toast
-  toast.add(getToastOptions("Uploading attachment..."));
+  toast.add(getToastOptions("正在上传附件…"));
 
   // Upload the attachment
   return createAttachment(file)
@@ -389,8 +389,8 @@ function postAttachment(file) {
       // Success Toast
       toast.add(
         getToastOptions(
-          "Attachment uploaded successfully ✓",
-          "Success",
+          "附件已上传 ✓",
+          "成功",
           "success",
         ),
       );
@@ -402,13 +402,13 @@ function postAttachment(file) {
         // Error Toast
         toast.add(
           getToastOptions(
-            "An attachment with this filename already exists.",
-            "Duplicate",
+            "已有同名附件，请修改文件名后重试。",
+            "名称重复",
             "error",
           ),
         );
       } else if (error.response?.status == 413) {
-        entityTooLargeToast("attachment");
+        entityTooLargeToast("附件");
       } else {
         apiErrorHandler(error, toast);
       }
@@ -486,8 +486,8 @@ function keydownHandler(event) {
 function entityTooLargeToast(entityName) {
   toast.add(
     getToastOptions(
-      `This ${entityName} is too large. Please try again with a smaller ${entityName} or adjust your server configuration.`,
-      "Failure",
+      `${entityName}超过大小限制，请缩小后重试。`,
+      "操作失败",
       "error",
     ),
   );
@@ -496,8 +496,8 @@ function entityTooLargeToast(entityName) {
 function badFilenameToast(entityName) {
   toast.add(
     getToastOptions(
-      'Due to filename restrictions, the following characters are not allowed: <>:"/\\|?*',
-      `Invalid ${entityName}`,
+      '名称不能包含以下字符： <>:"/\\|?*',
+      `${entityName}不符合要求`,
       "error",
     ),
   );

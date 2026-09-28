@@ -39,12 +39,12 @@ import CustomButton from "./CustomButton.vue";
 import Modal from "./Modal.vue";
 
 const props = defineProps({
-  title: { type: String, default: "Confirmation" },
+  title: { type: String, default: "请确认" },
   message: String,
   confirmButtonStyle: { type: String, default: "cta" },
-  confirmButtonText: { type: String, default: "Confirm" },
+  confirmButtonText: { type: String, default: "确认" },
   cancelButtonStyle: { type: String, default: "subtle" },
-  cancelButtonText: { type: String, default: "Cancel" },
+  cancelButtonText: { type: String, default: "取消" },
   rejectButtonStyle: { type: String, default: "danger" },
   rejectButtonText: { type: String },
 });

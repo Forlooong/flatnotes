@@ -57,7 +57,7 @@ function setLoading() {
 }
 
 function setFailed(message, iconPath) {
-  failedMessage.value = message || "Loading Failed";
+  failedMessage.value = message || "加载失败，请刷新后重试";
   failedIconPath.value = iconPath || mdiTrafficCone;
   loadSuccessful.value = false;
 }

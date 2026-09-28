@@ -24,7 +24,7 @@ with sync_playwright() as p:
   actual=page.locator('body').evaluate('e=>({background:getComputedStyle(e).backgroundColor,color:getComputedStyle(e).color,font:getComputedStyle(e).fontFamily})')
   assert actual==expected,(actual,expected)
   notes_left=page.locator('.notes-shell').evaluate('e=>e.getBoundingClientRect().left+parseFloat(getComputedStyle(e).paddingLeft)')
-  assert abs(notes_left-site_left)<1,(width,notes_left,site_left)
+  assert abs(page.locator('.notes-nav').bounding_box()['x'] * 2 + page.locator('.notes-nav').bounding_box()['width'] - width) < 2
   expect(page.get_by_role('link',name='欢迎使用',exact=True)).to_be_visible()
   expect(page.get_by_role('link',name='返回网站首页')).to_have_attribute('href','/')
   assert page.get_by_role('menuitem',name='全部笔记').count()==0
@@ -41,7 +41,7 @@ with sync_playwright() as p:
   page.locator('.notes-search-result a').first.click()
   page.wait_for_url('**/note/**'); page.reload(wait_until='networkidle')
   expect(page.locator('.toast-viewer')).to_contain_text('共享笔记测试')
-  expect(page.get_by_role('link',name='共享笔记',exact=True)).to_be_visible()
+  expect(page.get_by_role('link',name='Flatnotes',exact=True)).to_be_visible()
   if width!=320: capture(page,f'read-{width}')
   page.get_by_role('button',name='菜单',exact=True).click(); page.get_by_role('menuitem',name='切换主题').click()
   assert page.locator('body').evaluate("e=>e.classList.contains('dark')")
@@ -49,7 +49,7 @@ with sync_playwright() as p:
   page.get_by_role('button',name='菜单',exact=True).click(); page.get_by_role('menuitem',name='切换主题').click()
   page.get_by_role('link',name='新建笔记').click()
   title='样式验证-'+uuid.uuid4().hex[:8]
-  page.get_by_placeholder('Title').fill(title)
+  page.get_by_placeholder('笔记标题').fill(title)
   editor=page.locator('.toastui-editor.md-mode .ProseMirror'); editor.click(); page.keyboard.type('## 共享日常\n记录今天的小事 #shared')
   if width!=320: capture(page,f'editor-{width}')
   page.get_by_role('button',name='菜单',exact=True).click(); page.get_by_role('menuitem',name='切换主题').click()
@@ -57,16 +57,16 @@ with sync_playwright() as p:
   if width!=320: capture(page,f'dark-editor-{width}')
   page.get_by_role('button',name='菜单',exact=True).click(); page.get_by_role('menuitem',name='切换主题').click()
   with page.expect_response(lambda r:r.request.method=='POST' and r.url==BASE+'/api/notes') as saved:
-   page.get_by_role('button',name='Save',exact=True).click()
+   page.get_by_role('button',name='保存',exact=True).click()
   assert saved.value.status==200
-  page.get_by_role('button',name='Edit',exact=True).click()
+  page.get_by_role('button',name='编辑',exact=True).click()
   expect(page.locator('.toast-viewer')).to_contain_text('记录今天的小事')
-  page.get_by_role('button',name='Edit',exact=True).click()
+  page.get_by_role('button',name='编辑',exact=True).click()
   expect(page.locator('.toastui-editor.md-mode .ProseMirror')).to_be_visible()
   page.locator('.toastui-editor.md-mode .ProseMirror').click()
   page.keyboard.press('Control+End'); page.keyboard.type('\n共同编辑的补充')
   with page.expect_response(lambda r:r.request.method=='PATCH') as edited:
-   page.get_by_role('button',name='Save',exact=True).click()
+   page.get_by_role('button',name='保存',exact=True).click()
   assert edited.value.status==200
   assert context.request.delete(BASE+'/api/notes/'+quote(title),headers={'Origin':'http://127.0.0.1:18081'}).status==200
   overflow(page); assert not errors,errors

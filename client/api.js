@@ -24,8 +24,8 @@ export function apiErrorHandler(error, toast) {
     console.error(error);
     toast.add(
       getToastOptions(
-        "Unknown error communicating with the server. Please try again.",
-        "Unknown Error",
+        "无法连接服务器，请稍后重试。",
+        "请求失败",
         "error",
       ),
     );

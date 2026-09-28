@@ -41,7 +41,7 @@ with sync_playwright() as p:
         page.goto(APP + "/", wait_until="networkidle")
         actual = page.locator("body").evaluate("e=>[getComputedStyle(e).backgroundColor,getComputedStyle(e).color,getComputedStyle(e).fontFamily]")
         assert actual == expected
-        assert abs(left-page.locator(".notes-shell").evaluate("e=>e.getBoundingClientRect().left+parseFloat(getComputedStyle(e).paddingLeft)")) < 1
+        assert abs(page.locator(".notes-nav").bounding_box()["x"] * 2 + page.locator(".notes-nav").bounding_box()["width"] - width) < 2
         if width != 320:
             page.bring_to_front(); page.screenshot(path=str(OUT/f"production-home-{width}.png"))
         page.get_by_role("button", name="菜单", exact=True).click()
@@ -52,16 +52,16 @@ with sync_playwright() as p:
         title = "样式验收-" + uuid.uuid4().hex[:8]
         created = False
         try:
-            page.get_by_placeholder("Title").fill(title)
+            page.get_by_placeholder("笔记标题").fill(title)
             page.locator(".toastui-editor.md-mode .ProseMirror").click()
             page.keyboard.type("网站统一样式验证 #shared")
             if width != 320:
                 page.screenshot(path=str(OUT/f"production-editor-{width}.png"))
             with page.expect_response(lambda r:r.request.method=="POST" and r.url==APP+"/api/notes") as saved:
-                page.get_by_role("button", name="Save", exact=True).click()
+                page.get_by_role("button", name="保存", exact=True).click()
             assert saved.value.status == 200
             created = True
-            page.get_by_role("button", name="Edit", exact=True).click()
+            page.get_by_role("button", name="编辑", exact=True).click()
             expect(page.locator(".toast-viewer")).to_contain_text("网站统一样式验证")
             page.reload(wait_until="networkidle")
             expect(page.locator(".toast-viewer")).to_contain_text("网站统一样式验证")

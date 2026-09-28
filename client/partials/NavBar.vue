@@ -1,15 +1,13 @@
 <template>
   <nav class="notes-nav" aria-label="笔记导航">
     <div class="notes-brand">
-      <a href="/" class="notes-site-mark" aria-label="返回网站首页">
-        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
-          <path d="M4 20 13 4l9 16H4Z" fill="none" stroke="currentColor" stroke-width="1.2" />
-          <path d="m4 20 9-7 9 7M13 4v9" fill="none" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-      </a>
-      <RouterLink :to="{ name: 'home' }" class="notes-wordmark">共享笔记</RouterLink>
+      <RouterLink :to="{ name: 'home' }" class="notes-wordmark">
+        <img :src="notesIcon" width="34" height="34" alt="" />
+        <span>Flatnotes</span>
+      </RouterLink>
     </div>
     <div class="notes-nav-actions">
+      <a href="/" class="notes-site-mark" aria-label="返回网站首页">网站首页</a>
       <!-- New Note -->
       <RouterLink v-if="showNewButton" :to="{ name: 'new' }">
         <CustomButton :iconPath="mdilPlusCircle" label="新建笔记" />
@@ -36,6 +34,7 @@ import {
   mdilPlusCircle,
 } from "@mdi/light-js";
 import { computed, ref } from "vue";
+import notesIcon from "../assets/notes.svg";
 import { RouterLink, useRouter } from "vue-router";
 
 import CustomButton from "../components/CustomButton.vue";

@@ -63,12 +63,12 @@ router.beforeEach(async (to) => {
 });
 
 router.afterEach((to) => {
-  let title = "共享笔记";
+  let title = "Flatnotes";
   if (to.name === "note") {
     if (to.params.title) {
       title = `${to.params.title} - ${title}`;
     } else {
-      title = "New Note - " + title;
+      title = "新建笔记 - " + title;
     }
   }
   document.title = title;

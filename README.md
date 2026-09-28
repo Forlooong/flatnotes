@@ -8,7 +8,7 @@
 
 中文首页含最近修改与搜索；菜单展开搜索笔记、全部笔记、切换主题、退出登录。保留上游编辑器、搜索、标签和主题；编辑器部分英文沿用上游。
 
-页面已统一网站首页的浅灰绿背景、深绿文字、系统字体、三角标、页面边距与细线列表，覆盖首页、搜索、阅读和编辑器。旧版前端已被用户判定审核不通过；这次样式修正已发布，本地桌面/移动真实 Chromium 检查通过，新版视觉审核仍待用户确认。
+上一版灰绿样式已发布，但用户指出桌面居中布局、Flatnotes 品牌/应用图标/浏览器标签、新建页布局与中文、非编辑区域光标仍待整改，当前视觉验收未通过。当前界面仍使用“共享笔记”品牌和部分英文控件，尚未实施新要求；网站首页锁/可点击及 favicon 问题由 vps-site 处理。本轮仅同步文档，详细规范与新会话提示词见 `D:/DEV/Lab/project-docs/docs/plans/flatnotes-ui-revision.md` 和 `D:/DEV/Lab/project-docs/docs/prompts/flatnotes-ui-revision-prompt.md`。
 
 ## 开发检查
 
@@ -21,6 +21,8 @@ python -m compileall -q server
 ```
 
 `tests/check_ui.py` 使用隔离 UI fixture；`tests/check_production.py` 打开真实 Chromium 两账户窗口，用户仅在网站输入密码，不保存凭据或 Cookie。测试脚本与 `docs/evidence/` 结果分开；`work/`、截图和构建目录不进 Git。
+
+上一轮 `check_style_production.py` 进程现已不在运行，`style-unification/production-checks.json` 未生成，正式成员样式验收未完成。下一会话不复用旧 PID/会话；上述测试和已有通过记录不能替代六项整改后的验证。本轮没有执行新的功能测试、commit、push 或部署，仅留下交接文档修改。
 
 ## 部署与数据
 
