@@ -1,0 +1,17 @@
+{
+  "/health": {
+    "status": 200
+  },
+  "/assets/index-BDlDbwjQ.css": {
+    "status": 401
+  },
+  "/assets/Note-mPyc_Fn4.css": {
+    "status": 401
+  },
+  "/api/notes": {
+    "status": 401
+  },
+  "/note/style-check?return=deep": {
+    "status": 302
+  }
+}

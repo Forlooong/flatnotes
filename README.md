@@ -8,6 +8,8 @@
 
 中文首页含最近修改与搜索；菜单展开搜索笔记、全部笔记、切换主题、退出登录。保留上游编辑器、搜索、标签和主题；编辑器部分英文沿用上游。
 
+页面已统一网站首页的浅灰绿背景、深绿文字、系统字体、三角标、页面边距与细线列表，覆盖首页、搜索、阅读和编辑器。旧版前端已被用户判定审核不通过；这次样式修正已发布，本地桌面/移动真实 Chromium 检查通过，新版视觉审核仍待用户确认。
+
 ## 开发检查
 
 ```text
@@ -22,11 +24,11 @@ python -m compileall -q server
 
 ## 部署与数据
 
-生产源码 `01946e76e28ddf61feae3df9bdb4c87a1e9b3ef4`，镜像 `site-flatnotes:<完整commit>`，仅监听 127.0.0.1:18080，UID/GID 1000、256MiB/0.5CPU。宿主机唯一共享目录 `/data/apps/notes/shared/` 包含 markdown、Whoosh 索引和附件。
+生产源码 `76dd37d075f0cb120d0677969f793fad3108594d`，镜像 `site-flatnotes:<完整commit>`，仅监听 127.0.0.1:18080，UID/GID 1000、256MiB/0.5CPU。宿主机唯一共享目录 `/data/apps/notes/shared/` 包含 markdown、Whoosh 索引和附件。
 
 从 GitHub 获取完整 commit 后执行该版本 `deploy.sh <40位commit>`。发布目录 `/opt/flatnotes/releases/<commit>`，`current` 指向当前版本，保留 source-commit、SHA256SUMS、部署时间与 previous-release。systemd `flatnotes.service` 绑定 data.mount、RequiresMountsFor=/data，启动前核验 UUID `6cb900e1-697a-4305-884c-cfd1620f5adf`；Docker restart=no，缺盘不自动创建数据目录。
 
-当前首次发布没有旧 Notes release。回滚先回滚网站 Notes 路由，然后 `systemctl disable --now flatnotes.service`；保留共享数据和 release。以后升级按 previous-release 切回 symlink 并启动服务。不得 down -v、删除数据或操作代理容器。
+当前 previous-release 为 `01946e76e28ddf61feae3df9bdb4c87a1e9b3ef4`。回滚本次样式仅停止 Notes 服务、原子切回旧 release symlink 并启动 Notes，保留共享数据，网站和身份不变。操作与保护证据见 `docs/evidence/2026-09-28/style-unification/release.md`。不得 down -v、删除数据或操作代理容器。
 
 ## 验证与限制
 

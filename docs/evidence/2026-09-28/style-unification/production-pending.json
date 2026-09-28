@@ -1,0 +1,7 @@
+{
+  "source": "76dd37d075f0cb120d0677969f793fad3108594d",
+  "authenticated_browser": "waiting for user manual login",
+  "visual_approval": "pending; previous frontend rejected",
+  "local_browser": "passed 1440/390/320 mobile touch",
+  "production_release_health_protection": "passed"
+}

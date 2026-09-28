@@ -1,0 +1,11 @@
+{
+  "before": "timestamp=2026-09-28T04:09:16Z",
+  "after": "timestamp=2026-09-28T04:12:58Z",
+  "proxy_openresty_start_restart_mounts": "unchanged",
+  "cert_stream_main_vhost_homepage_hashes": "unchanged",
+  "normalized_inbounds_settings_firewall": "unchanged",
+  "matched_protected_lines": 10,
+  "proxy_mount_order": "normalized; attributes unchanged",
+  "raw_database": "traffic/WAL volatile; config compared excluding traffic",
+  "actual_proxy_client": "not performed"
+}

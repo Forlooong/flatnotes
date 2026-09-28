@@ -62,3 +62,17 @@ HASH: 8edfc0f160897bef822289a9717f6a18274868a4a76ccdd70ab412a1f7c2f110
 Git：本记录随样式候选提交，完整 commit 在后续部署记录标注。
 
 HASH: 3c30109d7c500ad6f4358714c0cb2947e5edbb17050973a1990dcf16ba4b0cf4
+
+## 2026-09-28 — Notes 统一样式实际发布与审核边界
+
+目标：修正用户判定未通过的前端，与网站首页现有风格统一；不重复询问上游/OIDC/共享/路径等已确认选择。
+实际变更：样式与最小前端组件修改 source 76dd37d075f0cb120d0677969f793fad3108594d，GitHub vps-flatnotes-oidc 推送后 VPS 精确 fetch/archive/build/deploy.sh 发布；网站和身份运行版本未变，未改认证、数据分区、依赖和部署架构。
+验证：本轮最终 build、1440/390/320 Chromium 移动触控的首页计算样式/菜单/搜索/阅读深层刷新/浅暗主题与编辑器/POST 新建/PATCH 编辑通过，无溢出及 pageerror。正式 source/清单/health JSON/active/healthy/1000:1000/256MiB/0.5CPU/restart=no/data UUID 核对；匿名 API/CSS 401，HTML 深层 302；CSS 资源 SHA 已记录。没有放宽匿名资源边界。公开请求最初预期 CSS200/不带HTML Accept 跳转，已按实际协议纠正测试预期，而非修改应用鉴权。
+发布：2026-09-28T04:11:39Z，/opt/flatnotes/releases/76dd37d075f0cb120d0677969f793fad3108594d，previous-release 01946e76e28ddf61feae3df9bdb4c87a1e9b3ef4 保留，回滚操作见 style-unification/release.md；未生产回滚演练。
+保护：04:09:16Z/04:12:58Z 对比，3xui_app/OpenResty 启动时间、restarts=0、mounts、证书/stream/main/vhost/主页以及规范化 inbounds/settings/iptables/ip6tables 不变。仅更新 Notes，无其他服务改动或重启。
+审核边界：旧前端用户审核不通过是事实；本次视觉审核尚未收到。正式单成员 UI 浏览器窗口已按既有手动登录授权打开，仍等待用户登录；该流程未完成，不能引用首轮双账户功能报告替代本轮样式生产浏览器结果。OIDC 代码未改动，未重复未改动协议测试。详见 style-unification/checks.json/public-checks.json/protected-comparison.json/release.md/production-pending.json。
+清理：本轮自建 UI 测试笔记精确删除、本地 fixture 停止、命名诊断/记录脚本和失败调试截图清理成功；VPS 唯一临时部署脚本与空目录清理成功。原始保护快照/桌面移动截图待复核保留、忽略Git；旧 fixture 和未知 test-data 保留，未绕过前轮被拒绝的递归删除。node_modules/.venv/dist 单份开发资产不提交。当前唯一运行的测试为等待手动登录的 Chromium，测试仅存内存 Cookie，不保存凭据。
+遗留：用户新版视觉审核、正式样式浏览器手动登录；既有依赖公告/备份/真实重启缺盘/代理客户端/多应用SSO不扩大处理。README 只更新当前实际 source 与验证边界；SPEC 加入用户要求的网站样式一致约束。
+Git：生产 source 76dd37d075f0cb120d0677969f793fad3108594d。本轮随后仅提交测试/证据/文档收尾，生产固定源码不随文档提交变化。
+
+HASH: 49e9a4764dcb5bbd7a00d63d7b71f5a7ef182ed3f0bc0defbea4c5c18ae96170
