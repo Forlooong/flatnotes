@@ -102,7 +102,7 @@ if global_config.auth_type not in [AuthType.NONE, AuthType.READ_ONLY]:
                 secure=True,
                 httponly=True,
                 samesite="lax",
-                path=global_config.path_prefix or "/",
+                path=global_config.path_prefix + "/",
             )
             response.headers["Cache-Control"] = "no-store"
             return response
@@ -123,10 +123,10 @@ if global_config.auth_type not in [AuthType.NONE, AuthType.READ_ONLY]:
                 secure=True,
                 httponly=True,
                 samesite="lax",
-                path=global_config.path_prefix or "/",
+                path=global_config.path_prefix + "/",
             )
             response.delete_cookie(
-                auth.STATE_COOKIE, path=global_config.path_prefix or "/"
+                auth.STATE_COOKIE, path=global_config.path_prefix + "/"
             )
             response.headers["Cache-Control"] = "no-store"
             return response
@@ -136,7 +136,7 @@ if global_config.auth_type not in [AuthType.NONE, AuthType.READ_ONLY]:
             auth.logout(request.cookies.get(auth.SESSION_COOKIE))
             response = JSONResponse({"redirect": auth.provider_logout_url()})
             response.delete_cookie(
-                auth.SESSION_COOKIE, path=global_config.path_prefix or "/"
+                auth.SESSION_COOKIE, path=global_config.path_prefix + "/"
             )
             response.headers["Cache-Control"] = "no-store"
             return response
