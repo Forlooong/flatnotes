@@ -1,0 +1,7 @@
+{
+  "deep_return": "exact path and query",
+  "oidc_login": "S256, state, nonce, exact callback",
+  "anonymous_api_attachment_forged_headers": "denied",
+  "legacy_and_unknown_routes": "404",
+  "canonical_trailing_slash": "308"
+}

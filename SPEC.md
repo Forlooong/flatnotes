@@ -1,6 +1,6 @@
 # Flatnotes Shared Notes 规范
 
-状态：`IMPLEMENTED LOCALLY — PRODUCTION PENDING`
+状态：首应用已发布并完成本轮自动与真实浏览器验收；最终视觉和维护窗口项目见 README。
 
 ## 上游与路径
 

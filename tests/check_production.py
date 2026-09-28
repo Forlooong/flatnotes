@@ -16,10 +16,12 @@ OUT.mkdir(parents=True, exist_ok=True)
 title = "接入验证-" + uuid.uuid4().hex[:12]
 created = False
 with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
+    browsers = []
     contexts = []
     pages = []
     for user, width, height in (("zhuqing", 1440, 1000), ("yaojia", 390, 844)):
+        browser = p.chromium.launch(headless=False, args=[f"--window-size={width},{height}"])
+        browsers.append(browser)
         context = browser.new_context(viewport={"width": width, "height": height}, locale="zh-CN", is_mobile=width == 390, has_touch=width == 390)
         page = context.new_page()
         page.goto(APP + "/new?acceptance=" + user, wait_until="networkidle")
@@ -89,14 +91,15 @@ with sync_playwright() as p:
             assert a.request.post(BASE + "/auth/api/logout", headers={"Origin": origin}).status == 403
         results = []
         for page, width in zip(pages, (1440, 390)):
+            page.bring_to_front()
             page.goto(APP + "/", wait_until="networkidle")
             expect(page.get_by_text("共享笔记", exact=True)).to_be_visible()
             assert page.get_by_role("menuitem", name="全部笔记").count() == 0
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
-            page.screenshot(path=str(OUT / f"production-home-{width}.png"))
+            page.screenshot(path=str(OUT / f"production-home-{width}.png"), animations="disabled", timeout=60000)
             page.get_by_role("button", name="菜单", exact=True).click()
             expect(page.get_by_role("menuitem", name="搜索笔记")).to_be_visible()
-            page.screenshot(path=str(OUT / f"production-menu-{width}.png"))
+            page.screenshot(path=str(OUT / f"production-menu-{width}.png"), animations="disabled", timeout=60000)
             page.get_by_role("menuitem", name="切换主题").click()
             assert page.locator("body").evaluate("el => el.classList.contains('dark')")
             page.get_by_role("button", name="菜单", exact=True).click()
@@ -107,9 +110,12 @@ with sync_playwright() as p:
         # They stay in memory only; this establishes backend invalidation.
         original = "; ".join(c["name"] + "=" + c["value"] for c in a.cookies() if c["name"] in ("site_session", "flatnotes_session"))
         pages[0].goto(BASE + "/auth/settings/security", wait_until="networkidle")
-        pages[0].locator("#site-account-logout").click()
-        pages[0].wait_for_url(lambda url: "/auth" in str(url) and "settings" not in str(url), timeout=30000)
-        assert a.request.get(api_url, headers={"Cookie": original}).status == 401
+        with pages[0].expect_response(lambda r: r.url == BASE + "/auth/api/logout" and r.request.method == "POST") as logged_out:
+            pages[0].locator("#site-account-logout").click()
+        assert logged_out.value.status == 200
+        pages[0].wait_for_url(lambda url: "/auth" in str(url) and "settings" not in str(url) and "logout" not in str(url), timeout=30000)
+        rejected = a.request.get(api_url, headers={"Cookie": original})
+        assert rejected.status == 401, ("website logout old-cookie replay", rejected.status, rejected.text())
         assert a.request.get(attachment, headers={"Cookie": original}).status == 401
         assert b.request.get(api_url).status == 200
         # App logout invalidates the app session and uses the standard website UI.
@@ -120,7 +126,7 @@ with sync_playwright() as p:
         pages[1].wait_for_url(lambda url: "/auth" in str(url), timeout=30000)
         assert b.request.get(api_url).status == 401
         assert not errors, errors
-        report = {"accounts": ["zhuqing", "yaojia"], "views": results, "deep_return": "exact path and query", "shared_edit_attachment_csrf": "passed", "website_logout_with_old_cookie_replay": "401 for notes and attachment; other member stays authorized", "app_logout": "passed", "expiry": "isolated real-provider shortened deadline test; production keeps 30m/8h", "test_note": title}
+        report = {"accounts": ["zhuqing", "yaojia"], "views": results, "deep_return": "exact path and query", "shared_edit_attachment_csrf": "passed", "website_logout_with_old_cookie_replay": "401 for notes and attachment; other member stays authorized", "app_logout": "passed", "expiry": "isolated real-provider shortened deadline test; production keeps 30m/8h", "test_note": title, "test_attachment": uploaded.json()["url"]}
         (OUT / "production-checks.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(json.dumps(report, ensure_ascii=False), flush=True)
     finally:
@@ -132,4 +138,5 @@ with sync_playwright() as p:
                 if response.status in (200, 404):
                     break
         print("TEST_ASSET:", title, flush=True)
-        browser.close()
+        for browser in browsers:
+            browser.close()

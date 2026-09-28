@@ -1,0 +1,23 @@
+{
+  "accounts": [
+    "zhuqing",
+    "yaojia"
+  ],
+  "views": [
+    {
+      "viewport": 1440,
+      "shared_ui_menu_search_theme_editor_refresh": "passed"
+    },
+    {
+      "viewport": 390,
+      "shared_ui_menu_search_theme_editor_refresh": "passed"
+    }
+  ],
+  "deep_return": "exact path and query",
+  "shared_edit_attachment_csrf": "passed",
+  "website_logout_with_old_cookie_replay": "401 for notes and attachment; other member stays authorized",
+  "app_logout": "passed",
+  "expiry": "isolated real-provider shortened deadline test; production keeps 30m/8h",
+  "test_note": "接入验证-38a51586124a",
+  "test_attachment": "attachments/%E6%8E%A5%E5%85%A5%E9%AA%8C%E8%AF%81-38a51586124a.txt"
+}
