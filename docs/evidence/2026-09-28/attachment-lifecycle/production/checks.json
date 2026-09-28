@@ -1,5 +1,5 @@
 {
-  "production": false,
+  "production": true,
   "checks": [
     {
       "width": 1440,
@@ -20,8 +20,5 @@
       "floating_home": true
     }
   ],
-  "pageErrors": [],
-  "failed_discard_retry": "passed: simulated 503, retained file, reopened editor, cleanup retried",
-  "unit_tests": 4,
-  "http_boundary_tests": 5
+  "pageErrors": []
 }

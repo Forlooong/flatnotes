@@ -22,15 +22,15 @@ python -m compileall -q server
 
 `tests/check_ui.py` 使用隔离 UI fixture；`tests/check_production.py` 打开真实 Chromium 两账户窗口，用户仅在网站输入密码，不保存凭据或 Cookie。测试脚本与 `docs/evidence/` 结果分开；`work/`、截图和构建目录不进 Git。
 
-本轮使用 `tests/check_revision.py`，新报告位于 `docs/evidence/2026-09-28/ui-revision/production/production-checks.json`，覆盖 1280/1440/1920/390/320（移动含设备/触控模拟）、登录深层回跳、中文编辑/草稿/附件、主题、返回首页/刷新/前进后退/退出。测试进程已结束；凭据仅由用户在网站输入，未记录 Cookie/token/storage state。旧 style-unification 测试没有通过报告，仍只作历史资料。
+此前六项整改使用 `tests/check_revision.py`，新报告位于 `docs/evidence/2026-09-28/ui-revision/production/production-checks.json`，覆盖 1280/1440/1920/390/320（移动含设备/触控模拟）、登录深层回跳、中文编辑/草稿/附件、主题、返回首页/刷新/前进后退/退出。测试进程已结束；凭据仅由用户在网站输入，未记录 Cookie/token/storage state。旧 style-unification 测试没有通过报告，仍只作历史资料。
 
 ## 部署与数据
 
-生产源码 `18a0c01c9e50a828d0b5c3b9ad92e7adfda47de8`，镜像 `site-flatnotes:<完整commit>`，仅监听 127.0.0.1:18080，UID/GID 1000、256MiB/0.5CPU。宿主机唯一共享目录 `/data/apps/notes/shared/` 包含 markdown、Whoosh 索引和附件。
+生产源码 `d6e73ef9fd50365603500ef6a8483512138f36cd`，镜像 `site-flatnotes:<完整commit>`，仅监听 127.0.0.1:18080，UID/GID 1000、256MiB/0.5CPU。宿主机唯一共享目录 `/data/apps/notes/shared/` 包含 markdown、Whoosh 索引和附件。
 
 从 GitHub 获取完整 commit 后执行该版本 `deploy.sh <40位commit>`。发布目录 `/opt/flatnotes/releases/<commit>`，`current` 指向当前版本，保留 source-commit、SHA256SUMS、部署时间与 previous-release。systemd `flatnotes.service` 绑定 data.mount、RequiresMountsFor=/data，启动前核验 UUID `6cb900e1-697a-4305-884c-cfd1620f5adf`；Docker restart=no，缺盘不自动创建数据目录。
 
-当前 previous-release 为 `76dd37d075f0cb120d0677969f793fad3108594d`。回滚仅停止 Notes、原子切回旧 release symlink 并启动 Notes，保留共享数据。此次发布/回滚/验证证据见 `docs/evidence/2026-09-28/ui-revision/release.md`；网站有独立固定提交和回滚，身份不变。不得 down -v、删除数据或操作代理容器。
+当前 previous-release 为 `18a0c01c9e50a828d0b5c3b9ad92e7adfda47de8`。回滚仅停止 Notes、原子切回旧 release symlink 并启动 Notes，保留共享数据。此次发布/回滚/验证证据见 `docs/evidence/2026-09-28/attachment-lifecycle/release.md`；网站有独立固定提交和回滚，身份不变。不得 down -v、删除数据或操作代理容器。
 
 ## 验证与限制
 
@@ -38,4 +38,6 @@ python -m compileall -q server
 
 并发编辑沿用上游最后写入语义，不提供协作锁或冲突合并。没有 WebSocket。至少两个真实应用 SSO、整机重启/真实缺盘、最终参考截图视觉确认与真实 VLESS + Reality 客户端验证尚未完成。npm audit 报告 8 项依赖公告（含编辑器传递 DOMPurify）；本轮未扩大为全依赖升级，不能据此宣称全部安全风险已解决。备份自动化尚未部署。
 
-本轮限制：没有等待生产 30m/8h 自然过期；前端失效状态使用服务端响应模拟，真实退出已经验证。一次本地 removeChild 异常在后续完整/局部和生产测试均未复现，原因未确认。最终视觉效果仍需用户确认。
+此前六项报告限制：没有等待生产 30m/8h 自然过期；前端失效状态使用服务端响应模拟，真实退出已经验证。一次本地 removeChild 异常在后续完整/局部和生产测试均未复现，原因未确认。最终视觉效果仍需用户确认。
+
+当前附件管理：宿主机 `/data/apps/notes/shared/attachments/`（容器 `/data/attachments/`）。网页重复上传按内容复用；笔记与浏览器保留草稿共同保护附件，明确丢弃草稿、保存移除引用或删除最后引用笔记后自动清理受管文件；清理失败的明确丢弃会在下次编辑重试。行为与边界见 `docs/attachment-lifecycle.md`。返回网站首页为独立右下角房屋图标胶囊按钮。2026-09-28 本轮真实账户桌面/移动专项通过，结果见 `docs/evidence/2026-09-28/attachment-lifecycle/production/checks.json`；视觉审核待用户确认。

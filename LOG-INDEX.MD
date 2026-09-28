@@ -13,3 +13,4 @@
 2026-09-28 | 六项前端整改候选与本地验证 | LOG.MD:L94 | 810eba0f45eef55bd3c290e160e9feff0a126a299e05d31cf490ecdbfb26a345 | 随源码提交，完整SHA见后续发布记录
 2026-09-28 | 六项整改发布与正式浏览器收尾 | LOG.MD:L108 | e7f173c914c46075c033d68caf4b11b3933940350134eabd785893e3668792c7 | 网站c9209559f34e4475f4d9bd7fc7682af78bbc01ab / Notes18a0c01c9e50a828d0b5c3b9ad92e7adfda47de8
 2026-09-28 | 附件生命周期、独立返回入口与锁闪烁候选 | LOG.MD:L125 | 81938eb6244e579537c69bc26139c01d3a93298e65e2ff0c256f229de80ea6a0 | 随源码提交，见后续发布记录
+2026-09-28 | 附件生命周期与锁闪烁发布收尾 | LOG.MD:L138 | 5df9ec349428640b0eeaa19eb46fa614e5bef46b7912e8bd4aefcebcc1697042 | Notes d6e73ef9fd50365603500ef6a8483512138f36cd / 网站 b60e2ff5d764b6f0a2a642d5a53fa9d8134c6fc2

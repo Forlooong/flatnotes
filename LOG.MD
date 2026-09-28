@@ -134,3 +134,20 @@ HASH: e7f173c914c46075c033d68caf4b11b3933940350134eabd785893e3668792c7
 - Git commit：随源码候选提交，完整固定 SHA 见后续发布记录。测试证据 docs/evidence/2026-09-28/attachment-lifecycle/；截图本地忽略，测试代码与结果分离。
 
 HASH: 81938eb6244e579537c69bc26139c01d3a93298e65e2ff0c256f229de80ea6a0
+
+## 2026-09-28 06:30 UTC 附件生命周期与锁闪烁发布收尾
+
+- 目标与范围：完成新增三项，保留原六项及精简简介；没有重构认证、升级依赖或接入其他应用。
+- 固定源码：Notes `d6e73ef9fd50365603500ef6a8483512138f36cd`；网站 `b60e2ff5d764b6f0a2a642d5a53fa9d8134c6fc2`；身份 c680822408814f2bb03d013431d46fc6488a2ea6 未变。两处源码均先提交 GitHub，再按完整 SHA 在 VPS 显式部署。
+- 实现：内容 SHA256 去重；服务端草稿引用/上传待处理登记、正式笔记扫描与受管清理；草稿正文保留浏览器、丢弃失败 ID 下次编辑重试；上传/保存/删除/离开联动。独立右下角返回首页胶囊按钮及跨应用样式规范。首页复核保留已确认显示，请求合并，点击等待当前授权。
+- 关键文件：server/attachments/lifecycle.py、server/main.py、client/views/Note.vue/api.js/App.vue/style.css；网站指纹 bundle d6b57752247cf4d7 的 custom.js、index/include；docs/attachment-lifecycle.md 和 project-docs/docs/spec/application-return-home.md。
+- 验证：最终附件单元 4 项、HTTP 边界 5 项、npm/VPS 构建/就绪通过。本地/生产新 Chromium 1440×1000、390×844（设备/触控模拟）验证重复复用、草稿离开/刷新/返回网站后恢复、丢弃清理、保存保护、移除引用清理、创建删除与独立按钮，pageErrors=[]。本地 503 清理重试通过；正式静态资源的延迟授权模拟闪锁 0、失效不进入、仅 Notes 可进入；14 HTTP 文件 SHA256 与发布源码相同。
+- 真实账号：用户只在本轮网站窗口手动登录，未读取或保存凭据/Cookie/token/storage state。登录回复不作为视觉认可。没有复用旧进程/报告；没有等待自然 30m/8h 过期，也未重跑全部历史认证测试。
+- 生产盘点：开始为 0 笔记/0 附件，所以存量清理删除 0；正式具名测试数据经应用删除，最终 0 笔记/0 附件/0 受管文件/0 草稿登记。数据盘 UUID 正确，Notes active/healthy/restarts=0。
+- 保护：3x-ui/OpenResty 启动时间、重启计数、挂载、443、证书、stream/vhost/nginx、代理配置、归一化防火墙均与发布前一致；只 reload 网站静态 include，身份服务启动时间不变。原始流量计数正常变化不当作配置差异。
+- 回滚：Notes previous `18a0c01c9e50a828d0b5c3b9ad92e7adfda47de8`；网站本轮 release `/opt/deploy/vps-site-releases/20260928T062625Z-b60e2ff5d764.LwnnIR` 包含旧 index/include，可按 rollback-home.sh 恢复。保持共享数据和身份账号密码。
+- 风险/遗留：用户视觉审核尚未确认。旧 API/历史未纳管文件不自动删；手动清空浏览器数据、异常中断时可能保守保留，先盘点再清。无法读取笔记时暂停删除。原 SVG width=auto 警告和大 chunk 提示仍在，未扩展无关修改。
+- 临时资产：本轮浏览器/本地服务已结束，18081/8765 无监听。截图和保护快照本地保留供视觉复核。自动审批拒绝本轮本地测试目录及具名测试残留删除，原因为 blocked by policy；未绕过，资产保留清单在 attachment-lifecycle/release.md。生产测试数据已清理，二者不能混淆。
+- 文档：更新当前 README、用户新增 SPEC/统一按钮规范、计划及最新交接提示词；测试结论/代码分离，LOG 只追加。本条的源码完整 SHA 如上；后续纯文档提交不部署。
+
+HASH: 5df9ec349428640b0eeaa19eb46fa614e5bef46b7912e8bd4aefcebcc1697042
