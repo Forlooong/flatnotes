@@ -104,3 +104,20 @@ HASH: c4664e75c313c0a51228c360de8271c13ee0afb9aea964de12cf0ed60559542e
 Git：本条随本轮源码固定 commit 提交，SHA 在后续发布记录；project-docs 非 Git 仓库。
 
 HASH: 810eba0f45eef55bd3c290e160e9feff0a126a299e05d31cf490ecdbfb26a345
+
+## 2026-09-28 六项前端整改正式发布、补充文案与收尾
+
+时间：2026-09-28T05:49:36.002635+00:00。目标：仅完成六项前端整改和用户追加的已部署应用辅助文字精简，保留旧交接并独立记录用户视觉审核。
+固定source：网站c9209559f34e4475f4d9bd7fc7682af78bbc01ab（首轮08b8deecb2ebbcf6baeb1a83896afbc50b1463a1）；Notes18a0c01c9e50a828d0b5c3b9ad92e7adfda47de8；身份c680822408814f2bb03d013431d46fc6488a2ea6未变。先推GitHub再VPS fetch/完整SHA显式部署，文档收尾提交不自动部署。
+实现见候选记录：居中布局、品牌图标标签、中文编辑布局和反馈、锁/授权入口、展示/输入光标区分。补充为Flatnotes仅名称与原简介，不显示打开共享笔记或请先登录，七项保留尚未部署。网站bundle1a3401c6706106f3；协议/身份期限/共享规范/依赖不变。
+验证：本地与生产固定输入构建、compileall/readiness/release清单通过；本轮真实手动登录Chromium1280/1440/1920/390/320含移动设备与触控模拟，中文校验/保存/读取/编辑/删除/草稿恢复/图片上传下载/Markdown富文本预览/主题/布局光标/图标标签、精确深层路径+查询登录回跳、首页返回刷新前进后退及退出后锁定通过，最终pageErrors=[]。最新网站文字版本独立桌面移动与14文件HTTP字节核对通过。mock state覆盖无权限/过期/错误/BFCache；未等待生产30m/8h自然过期，不宣称重测服务端期限。
+测试过程：首个生产networkidle超时、第二次图标加载前断言中止，未写通过结果；改实际就绪等待并支持异常保留会话后最终正式运行通过。一次本地removeChild异常在随后完整/局部/生产未重现，原因未确认，保留观察项。无凭据/Cookie/token/storage state记录。
+保护：3xui_app/OpenResty启动时间/restart=0、443、挂载内容、证书/stream/main/vhost及规范化inbounds/settings/防火墙不变。Docker mounts数组顺序变化，按Destination排序后内容相同。身份started=2026-09-28T03:26:38.383255554Z/restarts=0未变。网站仅静态include新资源路径nginx -t/reload；只重启Notes自身，healthy/1000:1000/restart=no/dataUUID正确。
+回滚：Notes previous为76dd37d075f0cb120d0677969f793fad3108594d；网站最终release /opt/deploy/vps-site-releases/20260928T053951Z-c9209559f34e.HLyndt回退辅助文字变更，首轮release /opt/deploy/vps-site-releases/20260928T053244Z-08b8deecb2eb.9geARr保留整轮整改前入口/include。包已保留，未演练生产回滚。
+证据：flatnotes/docs/evidence/2026-09-28/ui-revision/release.md、production/production-checks.json、local/local-checks.json；vps-site/docs/evidence/2026-09-28/ui-revision/release.md、production-ui-checks.json、http-files.json、release-SHA256SUMS、protected-comparison.json。旧style-unification失效进程未当完成证据。
+文档：三项目README/SPEC、project-docs AGENTS、整改计划/phase2入口/最新交接提示词、测试驱动及旧选择器；LOG只追加并索引。README在新功能与发布验证后同步，原交接修改已入Git。
+清理：正式测试笔记经UI删除；精确图片正式界面验证-198fa7a8.png从共享attachments删除。本地五个测试图片、中间diagnosis/首轮截图、一次性编辑脚本删除。本轮预览21564、fixture父3112/子24876在核实命令/创建时间后停止，正式浏览器成功后关闭。未知fixture数据/旧进程/正式参考不动。最终local/production截图及vps-site/work/tests/ui-revision保护快照留本地忽略Git，视觉复核后可删；正式release/回滚保留。
+人工审核/遗留：用户视觉审核尚未确认通过，不宣称视觉验收完成；移动为模拟而非真机。生产自然过期、间歇DOM异常根因、代理客户端/整机重启及既有依赖公告保持边界，不扩大本轮。
+Git：本条随文档/验证收尾提交，生产source仍为上列SHA；文档HEAD由git log/远端分支核对，不自动部署。project-docs非Git仓库。
+
+HASH: e7f173c914c46075c033d68caf4b11b3933940350134eabd785893e3668792c7

@@ -6,9 +6,9 @@
 
 应用会话仅存单实例内存，Cookie Secure/HttpOnly/Lax/Path=/apps/notes/。每个请求复核当前网站会话，网站退出、空闲/绝对过期或身份变化后拒绝访问；写请求要求精确 Origin。重启后重新登录。
 
-中文首页含最近修改与搜索；菜单展开搜索笔记、全部笔记、切换主题、退出登录。保留上游编辑器、搜索、标签和主题；编辑器部分英文沿用上游。
+中文首页含最近修改与搜索；菜单展开搜索笔记、全部笔记、切换主题、退出登录。品牌与标签为 Flatnotes，图标复用网站应用 notes.svg。桌面导航及内容采用最大 960px 居中布局；新建/编辑页包含中文工具栏、提示、弹窗、Markdown/富文本与预览，保留保存、草稿、附件、标签和浅暗主题。实际输入区保留输入光标，阅读区正文可选择复制。
 
-上一版灰绿样式已发布，但用户指出桌面居中布局、Flatnotes 品牌/应用图标/浏览器标签、新建页布局与中文、非编辑区域光标仍待整改，当前视觉验收未通过。当前界面仍使用“共享笔记”品牌和部分英文控件，尚未实施新要求；网站首页锁/可点击及 favicon 问题由 vps-site 处理。本轮仅同步文档，详细规范与新会话提示词见 `D:/DEV/Lab/project-docs/docs/plans/flatnotes-ui-revision.md` 和 `D:/DEV/Lab/project-docs/docs/prompts/flatnotes-ui-revision-prompt.md`。
+六项前端整改已于 2026-09-28 实施并发布。当前版本完成本地及正式账户 Chromium 检查，用户视觉审核尚未确认通过。网站首页的锁/可点击和 favicon 已同步更新；已部署 Flatnotes 仅保留原简介，不显示额外“打开共享笔记”或“请先登录”。当前规范和交接提示词见 `D:/DEV/Lab/project-docs/docs/plans/flatnotes-ui-revision.md` 与 `D:/DEV/Lab/project-docs/docs/prompts/flatnotes-ui-revision-prompt.md`。
 
 ## 开发检查
 
@@ -22,18 +22,20 @@ python -m compileall -q server
 
 `tests/check_ui.py` 使用隔离 UI fixture；`tests/check_production.py` 打开真实 Chromium 两账户窗口，用户仅在网站输入密码，不保存凭据或 Cookie。测试脚本与 `docs/evidence/` 结果分开；`work/`、截图和构建目录不进 Git。
 
-上一轮 `check_style_production.py` 进程现已不在运行，`style-unification/production-checks.json` 未生成，正式成员样式验收未完成。下一会话不复用旧 PID/会话；上述测试和已有通过记录不能替代六项整改后的验证。本轮没有执行新的功能测试、commit、push 或部署，仅留下交接文档修改。
+本轮使用 `tests/check_revision.py`，新报告位于 `docs/evidence/2026-09-28/ui-revision/production/production-checks.json`，覆盖 1280/1440/1920/390/320（移动含设备/触控模拟）、登录深层回跳、中文编辑/草稿/附件、主题、返回首页/刷新/前进后退/退出。测试进程已结束；凭据仅由用户在网站输入，未记录 Cookie/token/storage state。旧 style-unification 测试没有通过报告，仍只作历史资料。
 
 ## 部署与数据
 
-生产源码 `76dd37d075f0cb120d0677969f793fad3108594d`，镜像 `site-flatnotes:<完整commit>`，仅监听 127.0.0.1:18080，UID/GID 1000、256MiB/0.5CPU。宿主机唯一共享目录 `/data/apps/notes/shared/` 包含 markdown、Whoosh 索引和附件。
+生产源码 `18a0c01c9e50a828d0b5c3b9ad92e7adfda47de8`，镜像 `site-flatnotes:<完整commit>`，仅监听 127.0.0.1:18080，UID/GID 1000、256MiB/0.5CPU。宿主机唯一共享目录 `/data/apps/notes/shared/` 包含 markdown、Whoosh 索引和附件。
 
 从 GitHub 获取完整 commit 后执行该版本 `deploy.sh <40位commit>`。发布目录 `/opt/flatnotes/releases/<commit>`，`current` 指向当前版本，保留 source-commit、SHA256SUMS、部署时间与 previous-release。systemd `flatnotes.service` 绑定 data.mount、RequiresMountsFor=/data，启动前核验 UUID `6cb900e1-697a-4305-884c-cfd1620f5adf`；Docker restart=no，缺盘不自动创建数据目录。
 
-当前 previous-release 为 `01946e76e28ddf61feae3df9bdb4c87a1e9b3ef4`。回滚本次样式仅停止 Notes 服务、原子切回旧 release symlink 并启动 Notes，保留共享数据，网站和身份不变。操作与保护证据见 `docs/evidence/2026-09-28/style-unification/release.md`。不得 down -v、删除数据或操作代理容器。
+当前 previous-release 为 `76dd37d075f0cb120d0677969f793fad3108594d`。回滚仅停止 Notes、原子切回旧 release symlink 并启动 Notes，保留共享数据。此次发布/回滚/验证证据见 `docs/evidence/2026-09-28/ui-revision/release.md`；网站有独立固定提交和回滚，身份不变。不得 down -v、删除数据或操作代理容器。
 
 ## 验证与限制
 
 10 项认证/HTTP 测试、前端构建、真实隔离 Authelia 与应用联测、正式双账户桌面/移动 Chromium 的深层回跳、共享编辑/附件、菜单/搜索/主题、CSRF、网站旧 Cookie 退出重放和应用退出通过。空闲/绝对过期用真实隔离 provider 缩短期限验证，生产保持 30m/8h。部署证据在 `D:/DEV/Lab/vps-site/docs/evidence/2026-09-28/notes-release.md`，本仓库有 production-checks.json 和匿名边界结果。
 
 并发编辑沿用上游最后写入语义，不提供协作锁或冲突合并。没有 WebSocket。至少两个真实应用 SSO、整机重启/真实缺盘、最终参考截图视觉确认与真实 VLESS + Reality 客户端验证尚未完成。npm audit 报告 8 项依赖公告（含编辑器传递 DOMPurify）；本轮未扩大为全依赖升级，不能据此宣称全部安全风险已解决。备份自动化尚未部署。
+
+本轮限制：没有等待生产 30m/8h 自然过期；前端失效状态使用服务端响应模拟，真实退出已经验证。一次本地 removeChild 异常在后续完整/局部和生产测试均未复现，原因未确认。最终视觉效果仍需用户确认。
