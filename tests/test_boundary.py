@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from hashlib import sha256
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "server"))
@@ -62,6 +63,17 @@ class BoundaryTest(unittest.TestCase):
 
     def test_callback_cookie_state_binding(self):
         self.assertEqual(self.client.get("/apps/notes/api/oidc/callback?code=x&state=bad").status_code, 400)
+
+    def test_login_and_callback_redirect_responses(self):
+        with patch.object(self.auth, "begin_login", return_value=("https://www.040323.xyz/auth/api/oidc/authorization", "bound-state")):
+            response = self.client.get("/apps/notes/api/oidc/login", follow_redirects=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.cookies["flatnotes_oidc_state"], "bound-state")
+        with patch.object(self.auth, "complete_login", return_value=("new-session", "/apps/notes/note/demo?edit=1")):
+            response = self.client.get("/apps/notes/api/oidc/callback?code=x&state=bound-state", headers={"Cookie": "flatnotes_oidc_state=bound-state; site_session=site-a"}, follow_redirects=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["location"], "/apps/notes/note/demo?edit=1")
+        self.assertEqual(response.cookies["flatnotes_session"], "new-session")
 
 
 if __name__ == "__main__":

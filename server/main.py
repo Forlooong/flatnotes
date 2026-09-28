@@ -94,7 +94,7 @@ if global_config.auth_type not in [AuthType.NONE, AuthType.READ_ONLY]:
         @router.get("/api/oidc/login", include_in_schema=False)
         def oidc_login(redirect: str | None = None):
             location, state = auth.begin_login(redirect)
-            response = RedirectResponse(location=location, status_code=302)
+            response = RedirectResponse(url=location, status_code=302)
             response.set_cookie(
                 auth.STATE_COOKIE,
                 state,
@@ -115,7 +115,7 @@ if global_config.auth_type not in [AuthType.NONE, AuthType.READ_ONLY]:
             if not code or not state or not request_state or not secrets.compare_digest(request_state, state):
                 raise HTTPException(status_code=400, detail="Invalid OIDC callback")
             session_id, redirect = auth.complete_login(state, code, request.cookies.get("site_session", ""))
-            response = RedirectResponse(location=redirect, status_code=302)
+            response = RedirectResponse(url=redirect, status_code=302)
             response.set_cookie(
                 auth.SESSION_COOKIE,
                 session_id,
