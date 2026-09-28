@@ -1,6 +1,8 @@
 # Flatnotes Shared Notes
 
-[dullage/flatnotes](https://github.com/dullage/flatnotes) v5.5.5 的独立 fork：[Forlooong/flatnotes](https://github.com/Forlooong/flatnotes)，分支 `vps-flatnotes-oidc`。固定上游 `7f5b773c9cb37cc84978079ed4790e7de38d3970`。
+[dullage/flatnotes](https://github.com/dullage/flatnotes) v5.5.5 的独立 fork：[Forlooong/flatnotes](https://github.com/Forlooong/flatnotes)，主开发分支 `develop`，包含原 `vps-flatnotes-oidc` 全部开发成果。固定上游 `7f5b773c9cb37cc84978079ed4790e7de38d3970`。
+
+开发接手见 [开发指南](docs/development.md)：本地启动、前后端入口、页面/组件、路由、配置、鉴权、文件存储、API、部署与 Git 工作流。
 
 正式入口：[共享笔记](https://www.040323.xyz/apps/notes/)。未登录自动进入 Authelia，成功后回到原深层路径与查询。使用 OIDC Code + S256 PKCE；全部授权 site-users 成员共享笔记和附件，无独立应用密码、无用户数据分区。
 

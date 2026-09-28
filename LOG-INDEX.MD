@@ -14,3 +14,7 @@
 2026-09-28 | 六项整改发布与正式浏览器收尾 | LOG.MD:L108 | e7f173c914c46075c033d68caf4b11b3933940350134eabd785893e3668792c7 | 网站c9209559f34e4475f4d9bd7fc7682af78bbc01ab / Notes18a0c01c9e50a828d0b5c3b9ad92e7adfda47de8
 2026-09-28 | 附件生命周期、独立返回入口与锁闪烁候选 | LOG.MD:L125 | 81938eb6244e579537c69bc26139c01d3a93298e65e2ff0c256f229de80ea6a0 | 随源码提交，见后续发布记录
 2026-09-28 | 附件生命周期与锁闪烁发布收尾 | LOG.MD:L138 | 5df9ec349428640b0eeaa19eb46fa614e5bef46b7912e8bd4aefcebcc1697042 | Notes d6e73ef9fd50365603500ef6a8483512138f36cd / 网站 b60e2ff5d764b6f0a2a642d5a53fa9d8134c6fc2
+
+2026-09-28 | 禁用本地 upstream 推送，保留上游拉取与 origin | LOG.MD:L156 | f43e28a2774561746955fcca81aa154f2ff5cbdcd80f07fdebbcd690f4daa764 | 未提交；HEAD a2d46df0fdb37d42b7674015a1d2a2d756396ca2
+
+2026-09-28 | 主分支归并、远程核对与开发接手指南 | LOG.MD:L171 | e38de3bf522097cca83e7c1086bace33c942a61000e870d8c020326b2be21897 | 包含本记录的收尾提交

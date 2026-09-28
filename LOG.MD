@@ -151,3 +151,37 @@ HASH: 81938eb6244e579537c69bc26139c01d3a93298e65e2ff0c256f229de80ea6a0
 - 文档：更新当前 README、用户新增 SPEC/统一按钮规范、计划及最新交接提示词；测试结论/代码分离，LOG 只追加。本条的源码完整 SHA 如上；后续纯文档提交不部署。
 
 HASH: 5df9ec349428640b0eeaa19eb46fa614e5bef46b7912e8bd4aefcebcc1697042
+
+
+## 2026-09-28T15:25:06+08:00 禁用 Flatnotes upstream 推送
+
+- ID: 2026-09-28-disable-upstream-push
+- 目标：按用户要求禁止本地通过 upstream 向原作者仓库推送。
+- 修改范围：.git/config 的 remote.upstream.pushurl 设置为 DISABLED；追加 LOG.MD、LOG-INDEX.MD。
+- 决定与原因：仅覆盖 upstream 推送地址，保留从 dullage/flatnotes 获取更新；origin 仍指向 Forlooong/flatnotes。
+- 验证：git remote -v 和 git remote get-url --push --all upstream 均确认推送地址为 DISABLED；fetch 地址和 origin 未变，配置修改后工作区仍干净。
+- 结果与限制：本地配置已生效；未执行任何远程推送、合并、分支删除或部署。该设置仅适用于本地克隆，不是远端权限限制，也不会随 Git 提交传播。
+- 回滚：git config --local --unset-all remote.upstream.pushurl。
+- 遗留与风险：无本任务未完成项；后续新克隆需自行配置。临时资产：无。
+- Git commit：本轮未提交；当前 HEAD a2d46df0fdb37d42b7674015a1d2a2d756396ca2
+
+HASH: f43e28a2774561746955fcca81aa154f2ff5cbdcd80f07fdebbcd690f4daa764
+
+
+## 2026-09-28T15:45:42+08:00 主分支归并与开发接手指南
+
+ID: 2026-09-28-flatnotes-branch-handoff
+
+- 目标：将 vps-flatnotes-oidc 全部成果归入用户自己的原有主分支 develop，并整理开发接手说明。
+- 范围：develop 从 7f5b773c9cb37cc84978079ed4790e7de38d3970 快进到 a2d46df0fdb37d42b7674015a1d2a2d756396ca2，包含 11 个开发提交；已推送 Forlooong/flatnotes develop，develop 改为跟踪 origin/develop。
+- 纠正：最初将主分支误解为 main 并新建/推送；用户明确沿用 develop 后，确认全部提交已在 develop，恢复 GitHub 默认分支为 develop，删除本轮创建的本地及远程 main。没有丢弃 OIDC 成果。原有 vps-flatnotes-oidc 分支保留。
+- 关键文件：新增 docs/development.md，README.md 更新实际主开发分支和指南入口；追加 LOG.MD/LOG-INDEX.MD，保留并提交上一轮禁用 upstream 的记录。应用源码、配置格式、SPEC 与生产部署不变。
+- 安全边界：仅向 Forlooong/flatnotes 写入；GitHub fork parent 为 dullage/flatnotes；upstream 的 fetch URL 保留，push URL 仍为 DISABLED。该配置仅本地有效，不会随提交传播。
+- 验证：原 develop 为 OIDC 分支祖先，快进 tree 一致；client/server/Dockerfile/compose/deploy/entrypoint 与原 OIDC 分支 diff 为空；npm run build 通过，现有大 chunk 警告保留；隔离 fixture 实际启动后 health、带测试 Cookie 的页面和 config API 通过，authType 为 oidc；git diff --check 通过。
+- 结果：主分支与默认分支均为 develop；指南覆盖启动、入口、前后端、路由、配置、文件存储、鉴权、页面/组件、API、Docker/部署与 Git。文档和本记录随本轮收尾提交。
+- 人工确认/限制：HTTP 启动检查不等于浏览器视觉/真实 OIDC 验收；本轮未做生产验证，没有连接生产用户数据或部署。完整本地 HTTPS/Authelia 环境尚未搭建。
+- 临时资产：临时 fixture 进程已停止，work/tests/handoff-* 独立数据目录已清除；client/dist 为本轮重建的 Git 忽略产物，可删除并用 npm run build 重建；未增加永久测试脚本。
+- 回滚：旧上游 commit 和 vps-flatnotes-oidc 历史保留；本次不重写远程历史。
+- Git commit：合并成果 a2d46df0fdb37d42b7674015a1d2a2d756396ca2；指南及施工记录的提交为包含本条的提交。
+
+SHA256: e38de3bf522097cca83e7c1086bace33c942a61000e870d8c020326b2be21897
